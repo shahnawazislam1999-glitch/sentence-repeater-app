@@ -529,16 +529,23 @@
          // --- IndexedDB for Persistent Video & SRT ---
          const dbName = "SentenceRepeaterDB";
          let db;
-         const dbReq = indexedDB.open(dbName, 1);
-         dbReq.onupgradeneeded = (e) => {
-             db = e.target.result;
-             if (!db.objectStoreNames.contains('mediaStore')) db.createObjectStore('mediaStore');
-         };
-         dbReq.onsuccess = (e) => {
-             db = e.target.result;
-             loadMediaFromDB();
-         };
-         dbReq.onerror = (e) => console.error("IndexedDB error:", e);
+         let dbReq = null;
+         try {
+             if (window.indexedDB) {
+                 dbReq = indexedDB.open(dbName, 1);
+                 dbReq.onupgradeneeded = (e) => {
+                     db = e.target.result;
+                     if (!db.objectStoreNames.contains('mediaStore')) db.createObjectStore('mediaStore');
+                 };
+                 dbReq.onsuccess = (e) => {
+                     db = e.target.result;
+                     loadMediaFromDB();
+                 };
+                 dbReq.onerror = (e) => console.error("IndexedDB error:", e);
+             }
+         } catch (e) {
+             console.error("IndexedDB blocked by WebView security:", e);
+         }
          
          function saveToDB(key, data) {
              if (!db) return;
@@ -662,7 +669,7 @@
          let sentences = []; let sentenceIndex = 0; let sentenceRepeatCount = 0; let passageRepeatCount = 0; let playedInCurrentLoop = 0; 
          let isPlaying = false; let delayTimeout; let startSentenceIndex = 0; let endSentenceIndex = 0; let starredSentences = new Set();
          let hiddenSentences = new Set(); let customRepeats = {}; let stickyNotes = {}; let translationCache = {}; let translationState = {}; 
-         const synth = window.speechSynthesis; let availableVoices = []; let boundarySupported = false; let wordTimers = [];
+         const synth = window.speechSynthesis || null; let availableVoices = []; let boundarySupported = false; let wordTimers = [];
          
          let isBulkDeleteMode = false;
          let selectedForDelete = new Set();
@@ -1214,7 +1221,23 @@
          }
          
          function highlightActivePlaylistSentence() { document.querySelectorAll('.sentence-content').forEach(el => el.classList.remove('active')); if (sentences.length > 0 && sentenceIndex !== -1 && sentenceIndex < sentences.length) { const activeWrapper = document.getElementById(`playlist-item-${sentenceIndex}`); if (activeWrapper) { const activeContent = activeWrapper.querySelector('.sentence-content'); if(activeContent) activeContent.classList.add('active'); activeWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } highlightInBoxEditor(); } }
-         function populateVoiceList() { availableVoices = synth.getVoices(); if (availableVoices.length === 0) return; const savedVoice = localStorage.getItem('app_voice'); voiceSelect.innerHTML = ''; availableVoices.forEach((voice) => { const option = document.createElement('option'); option.textContent = `${voice.name} (${voice.lang})`; option.value = voice.name; if (voice.name === savedVoice) option.selected = true; else if (!savedVoice && voice.default) option.selected = true; voiceSelect.appendChild(option); }); } populateVoiceList(); if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoiceList; voiceSelect.addEventListener('change', () => { localStorage.setItem('app_voice', voiceSelect.value); if (isPlaying) { synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
+         function populateVoiceList() { 
+    if (!synth) return; 
+    try { availableVoices = synth.getVoices() || []; } catch(e) { availableVoices = []; } 
+    if (availableVoices.length === 0) return; 
+    const savedVoice = localStorage.getItem('app_voice'); 
+    voiceSelect.innerHTML = ''; 
+    availableVoices.forEach((voice) => { 
+        const option = document.createElement('option'); 
+        option.textContent = `${voice.name} (${voice.lang})`; 
+        option.value = voice.name; 
+        if (voice.name === savedVoice) option.selected = true; 
+        else if (!savedVoice && voice.default) option.selected = true; 
+        voiceSelect.appendChild(option); 
+    }); 
+} 
+populateVoiceList(); 
+if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoiceList; voiceSelect.addEventListener('change', () => { localStorage.setItem('app_voice', voiceSelect.value); if (isPlaying) { if (synth) synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
          
          function isPlayable(index) { 
              if (index < startSentenceIndex || index > endSentenceIndex) return false; 
@@ -1387,7 +1410,7 @@
 }); delayInput.addEventListener('input', () => localStorage.setItem('app_delay', delayInput.value)); sentenceRepeatInput.addEventListener('input', () => { localStorage.setItem('app_sentence_repeats', sentenceRepeatInput.value); if(!isPlaying) updateScreenOnly(); }); passageRepeatInput.addEventListener('input', () => localStorage.setItem('app_passage_repeats', passageRepeatInput.value)); skipIntervalInput.addEventListener('input', () => localStorage.setItem('app_skip_interval', skipIntervalInput.value)); shuffleInput.addEventListener('change', () => { localStorage.setItem('app_shuffle', shuffleInput.checked); if(!isPlaying) { playedInCurrentLoop = 0; updateScreenOnly(); } }); 
          rangeInput.addEventListener('input', () => { localStorage.setItem('app_range', rangeInput.value); updateVisibilityStates(); if(!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) sentenceIndex = nextIdx; saveProgress(); if(!isPlaying) updateScreenOnly(); } }); 
          minWordsInput.addEventListener('input', () => { localStorage.setItem('app_min_words', minWordsInput.value); updateVisibilityStates(); if (sentences.length > 0 && sentenceIndex >= 0 && !isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if (!isPlaying) updateScreenOnly(); } else { if (isPlaying) togglePlayPause(); currentSentenceDiv.innerText = "No playable sentences found matching your filters."; } } });
-         playStarredOnlyInput.addEventListener('change', () => { localStorage.setItem('app_play_starred_only', playStarredOnlyInput.checked); updateVisibilityStates(); if (!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if (!isPlaying) updateScreenOnly(); } else { if (isPlaying) togglePlayPause(); currentSentenceDiv.innerText = "No playable sentences found."; } } }); speedInput.addEventListener('input', () => { speedValueDisplay.innerText = `${speedInput.value}x`; localStorage.setItem('app_speed', speedInput.value); if(isVideoMode && videoPlayer) { videoPlayer.playbackRate = parseFloat(speedInput.value) || 1.0; } if (isPlaying && !isVideoMode) { synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
+         playStarredOnlyInput.addEventListener('change', () => { localStorage.setItem('app_play_starred_only', playStarredOnlyInput.checked); updateVisibilityStates(); if (!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if (!isPlaying) updateScreenOnly(); } else { if (isPlaying) togglePlayPause(); currentSentenceDiv.innerText = "No playable sentences found."; } } }); speedInput.addEventListener('input', () => { speedValueDisplay.innerText = `${speedInput.value}x`; localStorage.setItem('app_speed', speedInput.value); if(isVideoMode && videoPlayer) { videoPlayer.playbackRate = parseFloat(speedInput.value) || 1.0; } if (isPlaying && !isVideoMode) { if (synth) synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
          
          function saveProgress() { localStorage.setItem('app_sentence_index', sentenceIndex); } function getMaxSentenceRepeats(sentenceStr) { if (!sentenceStr) return parseInt(sentenceRepeatInput.value) || 1; let customVal = customRepeats[sentenceStr]; return (customVal !== undefined && customVal !== null) ? customVal : (parseInt(sentenceRepeatInput.value) || 1); }
          function updateScreenOnly() { if (!sentences || sentences.length === 0 || sentenceIndex === -1) return; const sentenceStr = sentences[sentenceIndex]; const maxRepeats = getMaxSentenceRepeats(sentenceStr); progressText.innerText = `Sentence: ${sentenceIndex + 1}/${sentences.length} (Repeat: ${sentenceRepeatCount + 1}/${maxRepeats})`; currentSentenceDiv.innerHTML = `${renderSentenceWithWords(sentenceStr)}<br><span class="pause-text">(Paused. Press Play to start.)</span>`; highlightActivePlaylistSentence(); }
@@ -1404,7 +1427,7 @@
              isPlaying = false; // Temporarily block old callbacks from ruining state
              
              // --- BACKGROUND PLAYBACK: Clean intervals when jumping ---
-             synth.cancel(); 
+             if (synth) synth.cancel(); 
              if (videoPollingFrame) cancelAnimationFrame(videoPollingFrame); 
              if (window.bgVideoInterval) clearInterval(window.bgVideoInterval);
              
@@ -1435,7 +1458,7 @@
          function resetProgress() { 
              isPlaying = false; 
              boxTextarea.readOnly = false;
-             synth.cancel(); 
+             if (synth) synth.cancel(); 
              videoPlayer.pause(); 
              
              // --- BACKGROUND PLAYBACK: Clear intervals ---
@@ -1568,7 +1591,7 @@
                  };
              } else {
                  // TTS Playback Logic
-                synth.cancel(); // Force reset Android Speech Engine before speaking
+                if (synth) synth.cancel(); // Force reset Android Speech Engine before speaking
                 const utterance = new SpeechSynthesisUtterance(sentence); 
                 const selectedVoice = availableVoices.find(v => v.name === voiceSelect.value); 
                 if (selectedVoice) { utterance.voice = selectedVoice; utterance.lang = selectedVoice.lang; } else utterance.lang = 'en-US'; 
@@ -1603,7 +1626,7 @@
                     handleSentenceEnd();
                 }; 
                 
-                synth.speak(utterance); 
+               if (synth) synth.speak(utterance); 
              }
          }
          
@@ -1621,7 +1644,7 @@
                      if (videoPollingFrame) cancelAnimationFrame(videoPollingFrame);
                      if (window.bgVideoInterval) clearInterval(window.bgVideoInterval);
                  } else {
-                     synth.cancel();
+                     if (synth) synth.cancel();
                  }
                  clearTimeout(delayTimeout); clearWordHighlight(); currentSentenceDiv.innerHTML += `<br><span class="pause-text">(Paused. Press Play to restart this repetition.)</span>`; 
              } else { 
@@ -1633,7 +1656,7 @@
          } 
          
          floatingTtsBtn.addEventListener('click', togglePlayPause); setInterval(updateFloatingBtn, 500); 
-         window.addEventListener('beforeunload', () => { synth.cancel(); videoPlayer.pause(); });
+         window.addEventListener('beforeunload', () => { if (synth) synth.cancel(); videoPlayer.pause(); });
          
          /* --- Interactive Dictionary Engine --- */
          const dictPopup = document.getElementById('dictPopup');
