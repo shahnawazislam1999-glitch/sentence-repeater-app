@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <title>Ultimate Sentence Repeater</title>
+      <style>
+         /* --- Theme Variables --- */
+         :root {
+         --bg-color: #f4f7f6;
+         --text-color: #2c3e50;
+         --heading-color: #1a252f;
+         --card-bg: #ffffff;
+         --border-color: #e0e6ed;
+         --input-border: #cbd5e1;
+         --input-bg: #f8fafc;
+         --label-color: #64748b;
+         --hover-bg: #f1f5f9;
+         --pause-text: #3b82f6;
+         --list-border: #f1f5f9;
+         --btn-copy-bg: #e2e8f0;
+         --primary: #3b82f6;
+         --primary-hover: #2563eb;
+         --success: #10b981;
+         --danger: #ef4444;
+         --warning: #f59e0b;
+         --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+         --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
+         --shadow-lg: 0 10px 20px rgba(0,0,0,0.1);
+         --radius-md: 12px;
+         --radius-lg: 16px;
+         }
+         /* Full Black Theme */
+         :root.dark-theme, body.dark-theme {
+         --bg-color: #000000;
+         --text-color: #e2e8f0;
+         --heading-color: #ffffff;
+         --card-bg: #0a0a0a;
+         --border-color: #222222;
+         --input-border: #333333;
+         --input-bg: #000000;
+         --label-color: #94a3b8;
+         --hover-bg: #1a1a1a;
+         --pause-text: #60a5fa;
+         --list-border: #1a1a1a;
+         --btn-copy-bg: #1a1a1a;
+         }
+         /* Global Resets & Smoothness */
+         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+         body {
+         font-family: 'Inter', system-ui, -apple-system, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 1rem; line-height: 1.6;
+         color: var(--text-color); background-color: var(--bg-color); 
+         transition: background-color 0.3s, color 0.3s;
+         }
+         /* --- Header --- */
+         .header-container {
+         display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+         background: var(--card-bg); padding: 1.2rem 1.5rem; border-radius: var(--radius-lg);
+         box-shadow: var(--shadow-md); border: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem;
+         }
+         h2 { margin: 0; color: var(--heading-color); font-size: 1.4rem; font-weight: 700; }
+         .header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+         .icon-btn {
+         width: 44px; height: 44px; border-radius: 50%; background-color: var(--input-bg); color: var(--text-color);
+         border: 1px solid var(--border-color); cursor: pointer; font-size: 1.4rem;
+         display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+         }
+         .icon-btn:hover { background-color: var(--hover-bg); transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--primary); }
+         /* --- Compact File Manager --- */
+         .fs-container {
+         background-color: var(--card-bg); border: 1px solid var(--border-color);
+         border-radius: var(--radius-lg); padding: 1.2rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-md);
+         }
+         .fs-header {
+         display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;
+         flex-wrap: wrap; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--list-border);
+         }
+         .breadcrumbs { font-weight: 600; color: var(--primary); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; font-size: 1.1rem;}
+         .crumb-link { cursor: pointer; color: var(--label-color); transition: color 0.2s; }
+         .crumb-link:hover { color: var(--primary); text-decoration: underline; }
+         /* Search Bar */
+         .search-input {
+         flex-grow: 1; padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); 
+         background: var(--input-bg); color: var(--text-color); font-family: inherit; font-size: 1rem; min-width: 150px;
+         }
+         .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+         .fs-actions { display: flex; gap: 0.5rem; }
+         .fs-btn {
+         min-width: 44px; min-height: 44px; padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+         color: white; transition: all 0.2s ease; font-size: 1.2rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center;
+         }
+         .fs-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); opacity: 0.9; }
+         .btn-folder { background-color: var(--warning); color: #000; }
+         .btn-box { background-color: var(--success); }
+         .fs-grid { 
+         display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 0.8rem; padding: 0.5rem 0.2rem 1rem 0.2rem; 
+         scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+         }
+         .fs-grid::-webkit-scrollbar { height: 8px; }
+         .fs-grid::-webkit-scrollbar-track { background: var(--hover-bg); border-radius: 10px; }
+         .fs-grid::-webkit-scrollbar-thumb { background: var(--input-border); border-radius: 10px; border: 2px solid var(--hover-bg); }
+         /* Sleek Horizontal Item Layout */
+         .fs-item {
+         flex: 0 0 auto; min-width: 140px; max-width: 220px; scroll-snap-align: start; 
+         display: flex; flex-direction: column; justify-content: center;
+         padding: 0.8rem; background: var(--input-bg); border: 1px solid var(--border-color);
+         border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+         position: relative; box-shadow: var(--shadow-sm);
+         }
+         .fs-item:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-2px); background: var(--card-bg); }
+         .fs-item.is-active-box { border-color: var(--success); background: #f0fdf4; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3), var(--shadow-md); }
+         :root.dark-theme .fs-item.is-active-box { background: #022c22; }
+         .fs-item-header { display: flex; align-items: center; gap: 0.5rem; width: 100%; }
+         .fs-item-fav { font-size: 1rem; cursor: pointer; transition: transform 0.2s; user-select: none; opacity: 0.4; flex-shrink: 0;}
+         .fs-item:hover .fs-item-fav { opacity: 0.8; }
+         .fs-item-fav.active { opacity: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
+         .fs-item-fav:hover { transform: scale(1.2); opacity: 1; }
+         .fs-item-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0;}
+         .fs-item-name { font-weight: 600; color: var(--text-color); font-size: 0.9rem; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+         .fs-item-ctrls { display: flex; gap: 0.4rem; margin-top: 0.8rem; justify-content: flex-end; opacity: 0.4; transition: opacity 0.2s; }
+         .fs-item:hover .fs-item-ctrls { opacity: 1; }
+         .fs-ctrl-btn { background: var(--border-color); border: none; font-size: 0.8rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; color: var(--text-color); }
+         .fs-ctrl-btn:hover { background: var(--primary); color: white; transform: scale(1.1); }
+         .fs-ctrl-btn.play-btn { color: var(--success); }
+         .fs-ctrl-btn.play-btn:hover { background: var(--success); color: white; }
+         .fs-ctrl-btn.del-btn:hover { background: var(--danger); }
+         /* --- Box Editor --- */
+         #boxEditorView { display: none; }
+         .box-editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+         .back-btn, .play-box-btn { min-width: 44px; min-height: 44px; font-size: 1.4rem; padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; border: none;}
+         .back-btn { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); }
+         .back-btn:hover { background: var(--hover-bg); transform: translateX(-2px); }
+         .box-editor-title { font-weight: 700; color: var(--heading-color); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;}
+         .play-box-btn { background: var(--success); color: white; box-shadow: var(--shadow-sm); }
+         .play-box-btn:hover { background: #059669; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+         .box-textarea { width: 100%; height: 200px; padding: 1.2rem; font-size: 1.05rem; border: 1px solid var(--input-border); border-radius: var(--radius-md); resize: vertical; background-color: var(--input-bg); color: var(--text-color); font-family: inherit; box-sizing: border-box; line-height: 1.6; transition: border-color 0.2s, box-shadow 0.2s; }
+         .box-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+         /* NEW: Textarea Selection Highlights */
+         .box-textarea::selection { background-color: #fde047; color: #1a1a1a; }
+         :root.dark-theme .box-textarea::selection { background-color: #f59e0b; color: #000000; }
+         /* --- Video Player Container --- */
+         #videoContainer { 
+         display: none; 
+         text-align: center; 
+         margin-bottom: 1.5rem; 
+         background: var(--card-bg); 
+         border-radius: var(--radius-lg); 
+         border: 1px solid var(--border-color); 
+         padding: 1rem; 
+         box-shadow: var(--shadow-md); 
+         position: sticky; 
+         top: 0; 
+         z-index: 100;
+         }
+         #videoPlayer { 
+         width: 100%; 
+         height: auto;
+         max-height: 40vh; 
+         border-radius: var(--radius-md); 
+         background: #000; 
+         outline: none; 
+         object-fit: contain;
+         }
+         /* --- Display Card & Now Playing --- */
+         .display-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.8rem; min-height: 150px; margin-bottom: 2rem; transition: all 0.3s; box-shadow: var(--shadow-lg); position: relative; }
+         .now-playing-badge { 
+         font-size: 0.85rem; color: var(--success); font-weight: bold; margin-bottom: 0.8rem; 
+         display: flex; align-items: center; gap: 0.4rem; background: var(--input-bg); 
+         padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); 
+         width: fit-content; cursor: pointer; transition: all 0.2s; 
+         }
+         .now-playing-badge:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); filter: brightness(0.95); }
+         :root.dark-theme .now-playing-badge:hover { filter: brightness(1.2); }
+         .status-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: 600; color: var(--label-color); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; flex-wrap: wrap; gap: 0.75rem; }
+         .status-text { display: flex; flex-direction: column; gap: 0.2rem; }
+         .action-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap;}
+         .action-buttons button { width: 44px; height: 44px; font-size: 1.4rem; border: 1px solid var(--border-color); border-radius: 50%; cursor: pointer; transition: background-color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center; background-color: var(--card-bg); color: var(--text-color); }
+         .action-buttons button:hover { transform: translateY(-2px); background-color: var(--hover-bg); }
+         #copyBtn { background-color: var(--btn-copy-bg); color: var(--text-color); }
+         #boxStarredBtn { background-color: #fef08a; color: #ca8a04; border-color: #fde047; }
+         #boxStarredBtn:hover { background-color: #fde047; }
+         :root.dark-theme #boxStarredBtn { background-color: #713f12; color: #fef08a; border-color: #854d0e; }
+         #globalNotesBtn { background-color: #8b5cf6; color: white; border-color: #7c3aed; }
+         #globalNotesBtn:hover { background-color: #7c3aed; }
+         #currentSentence { font-size: 1.4rem; line-height: 1.6; color: var(--heading-color); font-weight: 500; overflow-wrap: break-word; word-break: break-word;}
+         .pause-text { color: var(--pause-text); font-size: 1rem; font-style: italic; display: block; margin-top: 0.5rem; font-weight: normal; }
+         /* --- Playlist & Accordion Settings --- */
+         #playlistSection { display: none; margin-bottom: 5rem; }
+         #playlistContainer { max-height: 450px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--border-color); border-radius: var(--radius-lg); background: var(--card-bg); box-shadow: var(--shadow-md); }
+         .sentence-wrapper { border-bottom: 1px solid var(--list-border); transition: opacity 0.2s; }
+         .sentence-wrapper.filtered-out { display: none !important; }
+         .sentence-wrapper:last-child { border-bottom: none; }
+         .sentence-content { display: flex; flex-direction: column; padding: 1rem 1.2rem; background-color: var(--card-bg); cursor: pointer; transition: background-color 0.2s; border-left: 4px solid transparent; }
+         .sentence-content:hover { background-color: var(--hover-bg); }
+         .sentence-content.active { background-color: var(--primary); color: white; font-weight: bold; border-left-color: var(--primary-hover); }
+         .sentence-top-row { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 1rem; }
+         .sentence-text { flex-grow: 1; transition: text-decoration 0.2s; user-select: all; -webkit-user-select: all; padding-top: 0.2rem; word-wrap: break-word; word-break: break-word;}
+         .sentence-wrapper.out-of-range .sentence-content { opacity: 0.3; }
+         .sentence-wrapper.is-hidden .sentence-content { background-color: var(--hover-bg); opacity: 0.5; border-left-color: var(--danger); }
+         .sentence-wrapper.is-hidden .sentence-text { text-decoration: line-through; }
+         .sentence-wrapper.is-hidden .sentence-content:hover { opacity: 0.8; }
+         .playlist-actions-wrapper { display: flex; align-items: center; gap: 0.5rem; pointer-events: auto; flex-shrink: 0; }
+         .sentence-settings-menu {
+         display: none; width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); 
+         border-radius: 8px; padding: 0.8rem 0.5rem; margin-top: 1rem; gap: 1.2rem; align-items: center; 
+         justify-content: space-evenly; flex-wrap: wrap; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); cursor: default;
+         }
+         .sentence-settings-menu.active { display: flex; animation: slideDown 0.2s ease; }
+         @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+         .star-btn, .repeat-btn, .hide-btn, .translate-btn, .delete-btn, .note-btn, .gear-btn, .ask-gpt-btn, .edit-btn, .jump-btn { 
+         flex-shrink: 0; cursor: pointer; font-size: 1.3rem; user-select: none; transition: transform 0.2s; padding: 0.2rem; color: var(--text-color); display: flex; align-items: center; justify-content: center;
+         }
+         .star-btn:hover, .repeat-btn:hover, .hide-btn:hover, .translate-btn:hover, .delete-btn:hover, .note-btn:hover, .gear-btn:hover, .ask-gpt-btn:hover, .edit-btn:hover, .jump-btn:hover { transform: scale(1.2); }
+         .repeat-badge { font-size: 0.75rem; background-color: var(--primary); color: white; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-left: 4px; }
+         /* --- Range Translate Button --- */
+         .global-translate-btn { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.3rem 0.6rem; min-width: 38px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+         .global-translate-btn:hover { background: var(--hover-bg); transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--primary); }
+         /* --- Floating TTS Button --- */
+         #floatingTtsBtn { position: fixed; bottom: 2rem; right: 2rem; width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.7rem; display: flex; align-items: center; justify-content: center; z-index: 1000; box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4); transition: background-color 0.2s, transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s; background-color: var(--primary); color: white; }
+         #floatingTtsBtn.is-playing { background-color: #f59e0b; box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4); }
+         #floatingTtsBtn:hover { transform: scale(1.08); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+         #floatingTtsBtn:active { transform: scale(0.95); }
+         /* --- Modals --- */
+         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 1rem; }
+         .modal-overlay.active { display: flex; }
+         .modal-content { background: var(--card-bg); border-radius: var(--radius-lg); width: 100%; max-width: 600px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); position: relative; max-height: 90vh; overflow-y: auto; }
+         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+         .modal-header h3 { margin: 0; color: var(--heading-color); font-size: 1.4rem; }
+         .close-modal-btn { background: transparent; border: none; font-size: 1.8rem; color: var(--label-color); cursor: pointer; transition: color 0.2s; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;}
+         .close-modal-btn:hover { color: var(--danger); }
+         #stickyNoteModal { padding: 0; }
+         #stickyNoteModal .modal-content { width: 100vw; max-width: 100%; height: 100vh; max-height: 100%; border-radius: 0; border: none; padding: 2rem 5%; box-sizing: border-box; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+         :root.dark-theme #stickyNoteModal .modal-content { background: rgba(0, 0, 0, 0.55); }
+         #stickyNoteText { flex-grow: 1; width: 100%; margin: 1rem 0; background: rgba(255, 255, 255, 0.5); border: 2px solid rgba(255, 255, 255, 0.8); border-radius: var(--radius-md); font-size: 1.3rem; padding: 1.5rem; color: var(--text-color); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); resize: none; }
+         #stickyNoteText:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
+         :root.dark-theme #stickyNoteText { background: rgba(20, 20, 20, 0.6); border-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+         .fav-list { display: flex; flex-direction: column; gap: 0.6rem; }
+         .fav-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: var(--input-bg); border-radius: 10px; cursor: pointer; border: 1px solid var(--border-color); transition: all 0.2s;}
+         .fav-item:hover { border-color: var(--primary); background: var(--hover-bg); transform: translateX(4px); }
+         .fav-item-title { font-weight: 600; color: var(--text-color); font-size: 1rem; margin-bottom: 0.2rem;}
+         .fav-item-path { font-size: 0.8rem; color: var(--label-color); font-weight: normal; }
+         .settings-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
+         .settings-actions button { font-size: 1.6rem; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+         .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; font-weight: 600; }
+         .setting-item { display: flex; flex-direction: column; gap: 0.4rem; }
+         .setting-item label { font-size: 0.95rem; color: var(--label-color); }
+         .settings-grid input[type="number"], .settings-grid input[type="text"], .settings-grid select { padding: 0.8rem; font-size: 1rem; border: 1px solid var(--input-border); border-radius: 8px; background-color: var(--input-bg); color: var(--text-color); font-family: inherit; }
+         .settings-grid input:focus, .settings-grid select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+         .speed-control { display: flex; align-items: center; gap: 0.5rem; }
+         .speed-control input[type="range"] { flex-grow: 1; accent-color: var(--primary); }
+         #speedValueDisplay { min-width: 35px; text-align: right; font-weight: normal; }
+         #autoStartOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1rem; }
+         #autoStartOverlay .overlay-box { background: var(--card-bg); border-radius: var(--radius-lg); padding: 2.5rem 2rem; text-align: center; width: 100%; max-width: 350px; border: 1px solid var(--border-color); }
+         #autoStartOverlay .overlay-icon { font-size: 3.5rem; margin-bottom: 0.5rem; }
+         #autoStartOverlay h3 { margin: 0 0 0.5rem; font-size: 1.4rem; color: var(--heading-color); }
+         #autoStartOverlay p { margin: 0 0 1.5rem; font-size: 1rem; color: var(--label-color); line-height: 1.5; }
+         #autoStartBtn { background: var(--success); color: white; border: none; border-radius: 12px; padding: 1rem; font-size: 1.5rem; cursor: pointer; width: 100%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-height: 50px;}
+         #autoStartBtn:hover { background: #059669; transform: scale(1.02); }
+         /* --- Interactive Words & Learning Features --- */
+         .word { display: inline; border-radius: 4px; padding: 0 2px; transition: background-color 0.1s, color 0.1s, cursor 0.2s; border-bottom: 1px dotted transparent; }
+         .word:hover { border-bottom: 1px dotted var(--primary); cursor: pointer; background-color: var(--hover-bg); }
+         .word-highlight { background-color: #fde047; color: #1a1a1a !important; border-radius: 4px; box-shadow: 0 2px 6px rgba(253, 224, 71, 0.5); font-weight: bold; padding: 0 4px; border-bottom-color: transparent !important; }
+         :root.dark-theme .word-highlight, body.dark-theme .word-highlight { background-color: #f59e0b; color: #000000 !important; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.6); }
+         /* Dictionary Popup */
+         .dict-popup {
+         position: absolute; background: var(--card-bg); border: 1px solid var(--border-color);
+         box-shadow: var(--shadow-lg); border-radius: var(--radius-md); padding: 1rem; width: 300px;
+         z-index: 10001; display: none; flex-direction: column; gap: 0.5rem;
+         animation: slideDown 0.2s ease;
+         }
+         .dict-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.2rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;}
+         .dict-meaning { font-size: 0.95rem; color: var(--text-color); max-height: 180px; overflow-y: auto; line-height: 1.5; padding-right: 0.5rem;}
+         .dict-meaning strong { color: var(--heading-color); }
+         /* --- Responsive Modifications --- */
+         @media (max-width: 600px) {
+         body { padding: 0.5rem; }
+         .header-container { flex-direction: column; align-items: stretch; gap: 1rem; }
+         .header-actions { justify-content: space-around; width: 100%; }
+         .fs-item { min-width: 120px; }
+         .modal-content { padding: 1.2rem; margin: 0.5rem; width: auto; }
+         .status-bar { flex-direction: column; align-items: flex-start; gap: 0.75rem;}
+         .action-buttons { width: 100%; justify-content: flex-end; margin-top: 0; }
+         /* Enhanced Mobile Video + Subtitle Layout */
+         #videoContainer { 
+         padding: 0.5rem; 
+         margin-bottom: 1rem; 
+         border-radius: 0 0 var(--radius-md) var(--radius-md);
+         top: 0; /* Keep sticky flush with top on scroll */
+         }
+         #videoPlayer { max-height: 30vh; }
+         .display-card { padding: 1.2rem; margin-bottom: 1.5rem; min-height: auto; }
+         #currentSentence { font-size: 1.15rem; }
+         #playlistContainer { max-height: 40vh; }
+         .sentence-top-row { gap: 0.5rem; }
+         .playlist-actions-wrapper { transform-origin: right center; gap: 0.25rem; }
+         .dict-popup { width: 90vw; max-width: 300px; }
+         }
+         :fullscreen, :-webkit-full-screen { background-color: var(--bg-color); overflow-y: auto; }
+         :fullscreen body, :-webkit-full-screen body { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+      </style>
+   </head>
+   <body>
+      <div class="header-container">
+         <h2>This app is very powerful, develop by raj [8399964358]</h2>
+         <div class="header-actions">
+            <button id="historyBtn" class="icon-btn" title="Recent History">🕒</button>
+            <button id="openFavoritesBtn" class="icon-btn" title="Favorites">❤️</button>
+            <button id="openSettingsBtn" class="icon-btn" title="Settings">⚙️</button>
+         </div>
+      </div>
+      <div class="fs-container" id="fsContainerView">
+         <div class="fs-header">
+            <div class="breadcrumbs" id="breadcrumbs">🏠</div>
+            <input type="text" id="fsSearchInput" placeholder="🔍 Search folders or boxes..." class="search-input">
+            <div class="fs-actions">
+               <button class="fs-btn btn-folder" title="New Folder" onclick="createFolder()">📁+</button>
+               <button class="fs-btn btn-box" title="New Box" onclick="createBox()">📄+</button>
+               <button class="fs-btn" id="toggleVideoVisibilityBtn" title="Show/Hide Video" style="display:none; background-color: #0ea5e9;">👁️🎥</button>
+               <button class="fs-btn" id="resumeVideoBtn" title="Resume Saved Video" style="display:none; background-color: #f59e0b;">▶️🎥</button>
+               <button class="fs-btn" id="loadVideoBtn" title="Load Local Video" style="background-color: #8b5cf6;">🎬+</button>
+               <input type="file" id="videoUpload" accept="video/mp4,video/x-matroska,.mkv" style="display:none;">
+            </div>
+         </div>
+         <div class="fs-grid" id="fsGrid">
+         </div>
+      </div>
+      <div class="fs-container" id="boxEditorView">
+         <div class="box-editor-header">
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+               <button class="back-btn" title="Back" onclick="closeBoxEditor()">⬅️</button>
+               <h3 class="box-editor-title" id="currentBoxName">📄 Box Name</h3>
+               <button class="fs-ctrl-btn" title="Parsing Rules" onclick="openParsingGuide()" style="font-size: 1.2rem; width: 30px; height: 30px; margin-left: 0.5rem;">ℹ️</button>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+               <button class="fs-btn btn-folder" id="srtCleanBtn" title="Clean SRT Subtitles" onclick="cleanSrtText()" style="font-size:1rem; padding: 0.4rem 0.8rem; background-color: #8b5cf6;">✨ SRT</button>
+               <button class="fs-btn btn-box" id="pdfCleanBtn" title="Clean PDF Vocabulary" onclick="cleanPdfText()" style="font-size:1rem; padding: 0.4rem 0.8rem; background-color: #f43f5e;">📄 PDF</button>
+               <button class="fs-btn btn-box" id="cstmCleanBtn" title="Custom Clean" onclick="customCleanText()" style="font-size:1rem; padding: 0.4rem 0.8rem; background-color: #0ea5e9;">🧹 Cstm</button>
+               <button class="play-box-btn" title="Play Box" onclick="playCurrentBox()">▶️</button>
+            </div>
+         </div>
+         <textarea class="box-textarea" id="boxTextarea" placeholder="Paste your English passage here..."></textarea>
+      </div>
+      <div id="videoContainer">
+         <video id="videoPlayer" controls playsinline></video>
+      </div>
+      <div class="display-card">
+         <div id="nowPlayingIndicator" class="now-playing-badge" style="display:none;" title="Click to view playing box">🎧</div>
+         <div class="status-bar">
+            <div class="status-text">
+               <span id="progressText">Sentence: 0/0 (Repeat: 0/0)</span> 
+               <span id="repeatText">Passage Loop: 0/0</span>
+            </div>
+            <div class="action-buttons">
+               <button id="boxStarredBtn" title="Starred Sentences (Current Box)">⭐</button>
+               <button id="bulkDeleteToggleBtn" title="Bulk Delete Sentences">🗑️☑️</button>
+               <button id="copyBtn" title="Copy">📋</button>
+               <button id="globalNotesBtn" title="All Notes">📚</button>
+            </div>
+         </div>
+         <div id="currentSentence">Select or create a Box from the File Manager above to begin.</div>
+      </div>
+      <div id="playlistSection">
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="margin:0; color: var(--label-color); font-size: 1.1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+               Sentence Index
+               <span style="font-size: 0.8rem; font-weight: normal; font-style: italic;">*Click any word above for meaning</span>
+               <div id="selectAllWrapper" style="display: none; align-items: center; gap: 0.4rem; background: var(--danger); color: white; padding: 0.2rem 0.6rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; border: 1px solid #b91c1c;">
+                  <input type="checkbox" id="selectAllCheckbox" style="cursor: pointer; margin: 0; accent-color: white;">
+                  <label for="selectAllCheckbox" style="cursor: pointer; margin: 0;">Select All Visible</label>
+               </div>
+            </h3>
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+               <button id="loadSrtBtn" class="global-translate-btn" title="Upload SRT for Video Sync" style="background-color: var(--input-bg); font-size: 0.9rem; padding: 0.3rem 0.6rem; border-color: #8b5cf6; color: #8b5cf6; font-weight: bold;">📝 SRT</button>
+               <input type="file" id="srtUpload" accept=".srt" style="display:none;">
+               <!-- NEW: Chunk Words Input -->
+               <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--input-bg); padding: 0.3rem 0.6rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <label for="wordChunkInput" style="font-size: 0.9rem; color: var(--label-color); font-weight: 600; margin: 0;">Chunk Words:</label>
+                  <input type="number" id="wordChunkInput" placeholder="Off" min="1" style="width: 60px; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.2rem 0.4rem; font-size: 0.9rem; text-align: center; background: var(--card-bg); color: var(--text-color);">
+               </div>
+               <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--input-bg); padding: 0.3rem 0.6rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <label for="minWordsInput" style="font-size: 0.9rem; color: var(--label-color); font-weight: 600; margin: 0;">Words:</label>
+                  <input type="text" id="minWordsInput" placeholder="5 or 5-8" style="width: 80px; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.2rem 0.4rem; font-size: 0.9rem; text-align: center; background: var(--card-bg); color: var(--text-color);">
+               </div>
+               <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--input-bg); padding: 0.3rem 0.6rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <label for="rangeInput" style="font-size: 0.9rem; color: var(--label-color); font-weight: 600; margin: 0;">Play Range:</label>
+                  <input type="text" id="rangeInput" placeholder="e.g. 1-5" style="width: 70px; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.2rem 0.4rem; font-size: 0.9rem; text-align: center; background: var(--card-bg); color: var(--text-color);">
+               </div>
+               <button id="globalTranslateBtn" class="global-translate-btn" title="Toggle Translation for Range">🌐</button>
+               <button id="stopTranslateBtn" class="global-translate-btn" title="Stop Translation" style="display:none; background: var(--danger); color: white; border-color: var(--danger);">🛑</button>
+            </div>
+         </div>
+         <div id="playlistContainer"></div>
+      </div>
+      <div id="parsingGuideModal" class="modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h3>ℹ️ Parsing Rules</h3>
+               <button id="closeGuideBtn" class="close-modal-btn">✖️</button>
+            </div>
+            <div class="settings-grid">
+               <div class="setting-item">
+                  <label>Hard Split Character:</label>
+                  <input type="text" id="ruleSplitInput" placeholder="e.g. ~">
+                  <small style="color:var(--label-color)">Forces a sentence break. Sentence indexes from the next line.</small>
+               </div>
+               <div class="setting-item">
+                  <label>Hide Block Character:</label>
+                  <input type="text" id="ruleHideInput" placeholder="e.g. ~h">
+                  <small style="color:var(--label-color)">Hide text enclosed between two of these markers. It will be removed from the sentence index for TTS.</small>
+               </div>
+            </div>
+            <button id="saveRulesBtn" class="fs-btn btn-box" style="margin-top:1.5rem;width:100%;">Save Rules</button>
+         </div>
+      </div>
+      <div id="historyModal" class="modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h3>🕒 Recent Boxes</h3>
+               <button id="closeHistoryBtn" class="close-modal-btn">✖️</button>
+            </div>
+            <div id="historyList" class="fav-list"></div>
+         </div>
+      </div>
+      <div id="favModal" class="modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h3>❤️ Favorites</h3>
+               <button id="closeFavBtn" class="close-modal-btn">✖️</button>
+            </div>
+            <div id="favList" class="fav-list"></div>
+         </div>
+      </div>
+      <div id="globalNotesModal" class="modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h3>📚 All Notes</h3>
+               <button id="closeGlobalNotesBtn" class="close-modal-btn">✖️</button>
+            </div>
+            <div id="globalNotesList" class="fav-list"></div>
+         </div>
+      </div>
+      <div id="boxStarredModal" class="modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h3>⭐ Starred (Current Box)</h3>
+               <button id="closeBoxStarredBtn" class="close-modal-btn">✖️</button>
+            </div>
+            <div id="boxStarredList" class="fav-list"></div>
+         </div>
+      </div>
+      <div id="stickyNoteModal" class="modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h3 style="display: flex; align-items: center; gap: 0.5rem;">📝 Sticky Note</h3>
+               <button id="closeNoteBtn" class="close-modal-btn">✖️</button>
+            </div>
+            <textarea id="stickyNoteText" placeholder="Write your thoughts here..."></textarea>
+            <div style="display:flex; justify-content:flex-end; gap: 1rem; margin-top: 1rem; padding-bottom: 2rem;">
+               <button id="cancelNoteBtn" class="fs-btn btn-folder" style="color:var(--heading-color); background: var(--hover-bg); border: 1px solid var(--border-color);" title="Cancel">❌</button>
+               <button id="saveNoteBtn" class="fs-btn btn-box" title="Save">💾</button>
+            </div>
+         </div>
+      </div>
+      <div id="settingsModal" class="modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h3>⚙️ Settings</h3>
+               <button id="closeSettingsBtn" class="close-modal-btn">✖️</button>
+            </div>
+            <div class="settings-actions">
+               <button id="exportBtn" class="fs-btn btn-box" title="Backup System">💾</button>
+               <button id="importBtn" class="fs-btn btn-folder" title="Restore System">📂</button>
+               <input type="file" id="importInput" accept=".json, .txt" style="display: none;">
+               <button id="themeToggleBtn" class="fs-btn" style="background:#475569;" title="Toggle Theme">🌙</button>
+            </div>
+            <div class="settings-grid">
+               <div class="setting-item">
+                  <label for="speedInput">Speed (Dynamic):</label>
+                  <div class="speed-control"><span>🐌</span><input type="range" id="speedInput" min="0.3" max="2.0" step="0.1" value="1.0"><span>🐇</span><span id="speedValueDisplay">1.0x</span></div>
+               </div>
+               <div class="setting-item"><label for="sentenceRepeatInput">Global Repeats per Sentence:</label><input type="number" id="sentenceRepeatInput" value="3" min="1" max="100"></div>
+               <div class="setting-item"><label for="passageRepeatInput">Passage Loops:</label><input type="number" id="passageRepeatInput" value="10" min="1" max="1000"></div>
+               <div class="setting-item"><label for="delayInput">Delay (seconds):</label><input type="number" id="delayInput" value="3" min="0" max="60"></div>
+               <div class="setting-item"><label for="skipIntervalInput">Skip N Sentences (Default 0):</label><input type="number" id="skipIntervalInput" value="0" min="0" max="100"></div>
+               <div class="setting-item"><label for="voiceSelect">Reading Voice:</label><select id="voiceSelect"></select></div>
+               <div class="setting-item">
+                  <label>Filter & Mode:</label>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                     <div style="display: flex; align-items: center; gap: 0.5rem;"><input type="checkbox" id="playStarredOnlyInput" style="width: 1.2rem; height: 1.2rem; cursor: pointer;"><label for="playStarredOnlyInput" style="cursor: pointer; margin: 0; font-weight: normal;">Play Starred Only</label></div>
+                     <div style="display: flex; align-items: center; gap: 0.5rem;"><input type="checkbox" id="shuffleInput" style="width: 1.2rem; height: 1.2rem; cursor: pointer;"><label for="shuffleInput" style="cursor: pointer; margin: 0; font-weight: normal;">Play Randomly (Shuffle)</label></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div id="autoStartOverlay" style="display:none;">
+         <div class="overlay-box">
+            <div class="overlay-icon">🔊</div>
+            <h3>Ready to Play</h3>
+            <p>Tap the button below to start.</p>
+            <button id="autoStartBtn" title="Start Playing">▶️</button>
+         </div>
+      </div>
+      <button id="floatingTtsBtn" title="Play / Pause TTS">▶️</button>
+      <div id="dictPopup" class="dict-popup">
+         <div class="dict-header">
+            <span id="dictWord">Word</span>
+            <button class="close-modal-btn" style="width:24px;height:24px;font-size:1.2rem;" onclick="document.getElementById('dictPopup').style.display='none'">✖️</button>
+         </div>
+         <div class="dict-meaning" id="dictMeaning">Loading...</div>
+      </div>
+      <script>
+         // --- Configuration Rules & Variables ---
+         let ruleHardSplit = localStorage.getItem('app_rule_split') || '~';
+         let ruleHideBlock = localStorage.getItem('app_rule_hide') || '~h';
+         let abortTranslation = false;
+         
+         // --- Video Mode & Subtitle Variables ---
+         let isVideoMode = false;
+         let videoSubtitles = []; 
+         let videoPollingFrame = null;
+         let currentVideoUrl = null;
+         
+         // NEW: Debounce state variables for rapid pen clicks
+         let isJumping = false;
+         let targetPlayingState = false;
+         
+         // --- IndexedDB for Persistent Video & SRT ---
+         const dbName = "SentenceRepeaterDB";
+         let db;
+         const dbReq = indexedDB.open(dbName, 1);
+         dbReq.onupgradeneeded = (e) => {
+             db = e.target.result;
+             if (!db.objectStoreNames.contains('mediaStore')) db.createObjectStore('mediaStore');
+         };
+         dbReq.onsuccess = (e) => {
+             db = e.target.result;
+             loadMediaFromDB();
+         };
+         dbReq.onerror = (e) => console.error("IndexedDB error:", e);
+         
+         function saveToDB(key, data) {
+             if (!db) return;
+             try {
+                 const tx = db.transaction('mediaStore', 'readwrite');
+                 const req = tx.objectStore('mediaStore').put(data, key);
+                 req.onerror = (e) => {
+                     console.error("Storage error:", e.target.error);
+                     if (key === 'video') alert("Video is too large to save to browser storage. It will play now, but won't be saved for next time.");
+                 };
+             } catch (e) {
+                 console.error("Transaction error:", e);
+             }
+         }
+         
+         function loadMediaFromDB() {
+             if (!db) return;
+             const tx = db.transaction('mediaStore', 'readonly');
+             const store = tx.objectStore('mediaStore');
+             
+             const videoReq = store.get('video');
+             videoReq.onsuccess = () => {
+                 if (videoReq.result) {
+                     currentVideoUrl = URL.createObjectURL(videoReq.result);
+                     videoPlayer.src = currentVideoUrl;
+                     videoContainer.style.display = 'block';
+                     document.getElementById('resumeVideoBtn').style.display = 'flex';
+                     document.getElementById('toggleVideoVisibilityBtn').style.display = 'flex';
+                     
+                     const srtReq = store.get('srt');
+                     srtReq.onsuccess = () => {
+                         if (srtReq.result) {
+                             isVideoMode = true;
+                             activeBoxId = 'video_mode';
+                             parseSRTData(srtReq.result);
+                             if(sentences.length > 0) {
+                                 currentSentenceDiv.innerText = "Restored saved Video & SRT! Press Play.";
+                                 resetProgress();
+                                 renderPlaylist();
+                                 updateVisibilityStates();
+                                 updateScreenOnly();
+                             }
+                         }
+                     };
+                 }
+             };
+         }
+         
+         // --- RAM Efficiency Engine (Lazy Loading) ---
+         function getBoxContent(id) { return localStorage.getItem('app_box_content_' + id) || ''; }
+         function setBoxContent(id, text) { localStorage.setItem('app_box_content_' + id, text); }
+         function deleteBoxContent(id) { localStorage.removeItem('app_box_content_' + id); }
+         function migrateToLazyLoad(node) { if (node.type === 'box' && node.content !== undefined) { setBoxContent(node.id, node.content); delete node.content; } if (node.children) node.children.forEach(migrateToLazyLoad); }
+         function buildExportTree(node) { let copy = { ...node }; if (copy.type === 'box') copy.content = getBoxContent(copy.id); if (copy.children) copy.children = copy.children.map(buildExportTree); return copy; }
+         function deepDeleteBoxContents(node) { if (node.type === 'box') deleteBoxContent(node.id); if (node.children) node.children.forEach(deepDeleteBoxContents); }
+         
+         // --- File System State ---
+         let fsTree = { id: 'root', type: 'folder', name: 'Home', children: [], isFav: false };
+         let currentFolderPath = ['root']; let openBoxId = null; let activeBoxId = null; let playHistory = [];
+         function generateId() { return 'id_' + Math.random().toString(36).substr(2, 9); }
+         function findNode(node, id) { if (node.id === id) return node; if (node.children) { for (let child of node.children) { let found = findNode(child, id); if (found) return found; } } return null; }
+         function findParent(node, id) { if (node.children) { for (let child of node.children) { if (child.id === id) return node; let found = findParent(child, id); if (found) return found; } } return null; }
+         function getPathToNode(root, id, path = []) { let currentPath = [...path, root]; if (root.id === id) return currentPath; if (root.children) { for (let c of root.children) { let res = getPathToNode(c, id, currentPath); if (res) return res; } } return null; }
+         function getCurrentFolder() { let currentId = currentFolderPath[currentFolderPath.length - 1]; return findNode(fsTree, currentId) || fsTree; }
+         
+         // --- DOM Elements ---
+         const fsContainerView = document.getElementById('fsContainerView'); const boxEditorView = document.getElementById('boxEditorView');
+         const breadcrumbsDiv = document.getElementById('breadcrumbs'); const fsSearchInput = document.getElementById('fsSearchInput');
+         const fsGrid = document.getElementById('fsGrid'); const currentBoxName = document.getElementById('currentBoxName');
+         const boxTextarea = document.getElementById('boxTextarea'); const nowPlayingIndicator = document.getElementById('nowPlayingIndicator');
+         
+         // Video DOM
+         const loadVideoBtn = document.getElementById('loadVideoBtn'); const videoUpload = document.getElementById('videoUpload');
+         const videoContainer = document.getElementById('videoContainer'); const videoPlayer = document.getElementById('videoPlayer');
+         const loadSrtBtn = document.getElementById('loadSrtBtn'); const srtUpload = document.getElementById('srtUpload');
+         const toggleVideoVisibilityBtn = document.getElementById('toggleVideoVisibilityBtn');
+         
+         const minWordsInput = document.getElementById('minWordsInput');
+         const wordChunkInput = document.getElementById('wordChunkInput');
+         const selectAllWrapper = document.getElementById('selectAllWrapper');
+         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+         const globalTranslateBtn = document.getElementById('globalTranslateBtn'); 
+         const stopTranslateBtn = document.getElementById('stopTranslateBtn');
+         
+         const delayInput = document.getElementById('delayInput'); const sentenceRepeatInput = document.getElementById('sentenceRepeatInput');
+         const passageRepeatInput = document.getElementById('passageRepeatInput'); const skipIntervalInput = document.getElementById('skipIntervalInput');
+         const speedInput = document.getElementById('speedInput'); const speedValueDisplay = document.getElementById('speedValueDisplay');
+         const voiceSelect = document.getElementById('voiceSelect'); const rangeInput = document.getElementById('rangeInput');
+         const playStarredOnlyInput = document.getElementById('playStarredOnlyInput'); const shuffleInput = document.getElementById('shuffleInput');
+         const themeToggleBtn = document.getElementById('themeToggleBtn'); const openSettingsBtn = document.getElementById('openSettingsBtn');
+         const closeSettingsBtn = document.getElementById('closeSettingsBtn'); const settingsModal = document.getElementById('settingsModal');
+         const openFavoritesBtn = document.getElementById('openFavoritesBtn'); const closeFavBtn = document.getElementById('closeFavBtn');
+         const favModal = document.getElementById('favModal'); const favList = document.getElementById('favList');
+         const historyBtn = document.getElementById('historyBtn'); const historyModal = document.getElementById('historyModal');
+         const historyList = document.getElementById('historyList'); const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+         const globalNotesBtn = document.getElementById('globalNotesBtn'); const globalNotesModal = document.getElementById('globalNotesModal');
+         const globalNotesList = document.getElementById('globalNotesList'); const closeGlobalNotesBtn = document.getElementById('closeGlobalNotesBtn');
+         const stickyNoteModal = document.getElementById('stickyNoteModal'); const stickyNoteText = document.getElementById('stickyNoteText');
+         const saveNoteBtn = document.getElementById('saveNoteBtn'); const cancelNoteBtn = document.getElementById('cancelNoteBtn');
+         const closeNoteBtn = document.getElementById('closeNoteBtn'); const copyBtn = document.getElementById('copyBtn');
+         const exportBtn = document.getElementById('exportBtn'); const importBtn = document.getElementById('importBtn');
+         const importInput = document.getElementById('importInput'); const autoStartOverlay = document.getElementById('autoStartOverlay');
+         const autoStartBtn = document.getElementById('autoStartBtn'); const currentSentenceDiv = document.getElementById('currentSentence');
+         const playlistSection = document.getElementById('playlistSection'); const playlistContainer = document.getElementById('playlistContainer');
+         const floatingTtsBtn = document.getElementById('floatingTtsBtn');
+         const progressText = document.getElementById('progressText'); const repeatText = document.getElementById('repeatText');
+         
+         const boxStarredBtn = document.getElementById('boxStarredBtn');
+         const boxStarredModal = document.getElementById('boxStarredModal');
+         const boxStarredList = document.getElementById('boxStarredList');
+         const closeBoxStarredBtn = document.getElementById('closeBoxStarredBtn');
+         
+         const bulkDeleteToggleBtn = document.getElementById('bulkDeleteToggleBtn');
+         
+         // Parsing Guide Elements
+         const parsingGuideModal = document.getElementById('parsingGuideModal');
+         const ruleSplitInput = document.getElementById('ruleSplitInput');
+         const ruleHideInput = document.getElementById('ruleHideInput');
+         
+         // --- Playback & Feature State Variables ---
+         let sentences = []; let sentenceIndex = 0; let sentenceRepeatCount = 0; let passageRepeatCount = 0; let playedInCurrentLoop = 0; 
+         let isPlaying = false; let delayTimeout; let startSentenceIndex = 0; let endSentenceIndex = 0; let starredSentences = new Set();
+         let hiddenSentences = new Set(); let customRepeats = {}; let stickyNotes = {}; let translationCache = {}; let translationState = {}; 
+         const synth = window.speechSynthesis; let availableVoices = []; let boundarySupported = false; let wordTimers = [];
+         
+         let isBulkDeleteMode = false;
+         let selectedForDelete = new Set();
+         
+         // --- Helper Methods ---
+         function getWordCount(sentence) {
+             if (!sentence) return 0;
+             return sentence.split(/\s+/).filter(w => w.trim().length > 0).length;
+         }
+         
+         // --- Video & SRT Logic ---
+         toggleVideoVisibilityBtn.addEventListener('click', () => {
+             if (videoContainer.style.display === 'none') {
+                 videoContainer.style.display = 'block';
+             } else {
+                 videoContainer.style.display = 'none';
+             }
+         });
+         
+         document.getElementById('resumeVideoBtn').addEventListener('click', () => {
+             if (!currentVideoUrl) return;
+             isVideoMode = true;
+             activeBoxId = 'video_mode';
+             videoContainer.style.display = 'block';
+             if (videoSubtitles.length > 0) {
+                 sentences = videoSubtitles.map(s => s.text);
+                 resetProgress();
+                 renderPlaylist();
+                 updateVisibilityStates();
+                 updateScreenOnly();
+                 currentSentenceDiv.innerText = "Switched to Saved Video Mode!";
+             } else {
+                 currentSentenceDiv.innerText = "Video active. Please upload an SRT file.";
+             }
+         });
+         
+         loadVideoBtn.addEventListener('click', () => videoUpload.click());
+         videoUpload.addEventListener('change', (e) => {
+             const file = e.target.files[0];
+             if (!file) return;
+             saveToDB('video', file);
+             if (currentVideoUrl) URL.revokeObjectURL(currentVideoUrl);
+             currentVideoUrl = URL.createObjectURL(file);
+             videoPlayer.src = currentVideoUrl;
+             videoContainer.style.display = 'block';
+             document.getElementById('resumeVideoBtn').style.display = 'flex';
+             document.getElementById('toggleVideoVisibilityBtn').style.display = 'flex';
+             currentSentenceDiv.innerText = "Video saved locally! Now click '📝 SRT' below to upload subtitles.";
+             isVideoMode = true;
+         });
+         
+         loadSrtBtn.addEventListener('click', () => srtUpload.click());
+         srtUpload.addEventListener('change', (e) => {
+             const file = e.target.files[0];
+             if (!file) return;
+             const reader = new FileReader();
+             reader.onload = (evt) => {
+                 const text = evt.target.result;
+                 saveToDB('srt', text);
+                 isVideoMode = true;
+                 activeBoxId = 'video_mode';
+                 
+                 parseSRTData(text);
+                 
+                 if(sentences.length > 0) {
+                     currentSentenceDiv.innerText = "SRT Synced! Press Play to start video speaking practice.";
+                     resetProgress();
+                     renderPlaylist();
+                     updateVisibilityStates();
+                     
+                     if (!isPlayable(sentenceIndex)) {
+                         let nextValid = getFirstPlayableIndex();
+                         if(nextValid !== -1) sentenceIndex = nextValid;
+                     }
+                     updateScreenOnly();
+                 } else {
+                     currentSentenceDiv.innerText = "Failed to parse SRT file. Please ensure it is a valid format.";
+                 }
+             };
+             reader.readAsText(file);
+             e.target.value = '';
+         });
+         
+         function parseSRTData(data) {
+             const normalizedData = data.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+             const blocks = normalizedData.split(/\n{2,}/);
+             videoSubtitles = [];
+             sentences = [];
+             
+             blocks.forEach(block => {
+                 const lines = block.trim().split('\n');
+                 if (lines.length >= 3) {
+                     const timeLine = lines[1];
+                     const timeMatch = timeLine.match(/(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})/);
+                     if (timeMatch) {
+                         const start = timeToSeconds(timeMatch[1]);
+                         const end = timeToSeconds(timeMatch[2]);
+                         const text = lines.slice(2).join(' ').replace(/<[^>]+>/g, '').trim();
+                         if (text) {
+                             videoSubtitles.push({ start, end, text });
+                             sentences.push(text);
+                         }
+                     }
+                 }
+             });
+         }
+         
+         function timeToSeconds(t) {
+             let p = t.split(':');
+             let s = p[2].split(/[,.]/); 
+             return parseInt(p[0], 10)*3600 + parseInt(p[1], 10)*60 + parseInt(s[0], 10) + parseInt(s[1], 10)/1000;
+         }
+         
+         // --- State Auto-Saving & Persistence ---
+         function saveFS() { localStorage.setItem('app_fs_tree', JSON.stringify(fsTree)); localStorage.setItem('app_active_box_id', activeBoxId || ''); }
+         function loadFS() { let savedFS = localStorage.getItem('app_fs_tree'); if (savedFS) { try { fsTree = JSON.parse(savedFS); migrateToLazyLoad(fsTree); } catch(e) { fsTree = { id: 'root', type: 'folder', name: 'Home', children: [], isFav: false }; } } else { fsTree = { id: 'root', type: 'folder', name: 'Home', children: [], isFav: false }; } activeBoxId = localStorage.getItem('app_active_box_id') || null; }
+         
+         function cleanSrtText() {
+             if (!openBoxId) return;
+             let text = boxTextarea.value;
+             if (!text.trim()) { alert("Please paste SRT text first."); return; }
+             let lines = text.split(/\r?\n/);
+             let cleanedLines = [];
+             for (let i = 0; i < lines.length; i++) {
+                 let line = lines[i].trim();
+                 if (!line) continue;
+                 if (/^\d+$/.test(line)) continue;
+                 if (/\d{2}:\d{2}:\d{2}[,.]\d{3}\s*-->\s*\d{2}:\d{2}:\d{2}[,.]\d{3}/.test(line)) continue;
+                 line = line.replace(/<[^>]+>/g, '');
+                 line = line.replace(/\([^)]+\)/g, '').replace(/\[[^\]]+\]/g, '');
+                 line = line.replace(/^-\s*/, '');
+                 line = line.trim();
+                 if (line) cleanedLines.push(line);
+             }
+             let newText = cleanedLines.join(' ').replace(/\s{2,}/g, ' ');
+             boxTextarea.value = newText;
+             setBoxContent(openBoxId, newText);
+             if (openBoxId === activeBoxId) { resetProgress(); if (newText.trim()) { parseSentencesIfNeeded(); updateScreenOnly(); } }
+             const btn = document.getElementById('srtCleanBtn');
+             const orig = btn.innerHTML; btn.innerHTML = "✅"; setTimeout(() => btn.innerHTML = orig, 1500);
+         }
+         
+         function cleanPdfText() {
+             if (!openBoxId) return;
+             let text = boxTextarea.value;
+             if (!text.trim()) { alert("Please paste PDF vocabulary text first."); return; }
+             let lines = text.split(/\r?\n/);
+             let cleanedSentences = []; let currentWord = "";
+             for (let i = 0; i < lines.length; i++) {
+                 let line = lines[i].trim();
+                 line = line.replace(/^[•*\-\u2022]\s*/, '').trim();
+                 if (!line) continue;
+                 let wordMatch = line.match(/^\d+\.\s*(?:Word:\s*)?([A-Za-z\-]+(?:\s+[A-Za-z\-]+)*)/i);
+                 if (wordMatch) { currentWord = wordMatch[1].trim(); continue; }
+                 let exMatch = line.match(/Example(?: Sentence)?:\s*(.+)/i);
+                 if (exMatch && currentWord) {
+                     let exampleText = exMatch[1].trim();
+                     exampleText = exampleText.replace(/\s*\([^)]+\)$/, '').trim();
+                     cleanedSentences.push(`${currentWord} , ${exampleText}`);
+                     currentWord = ""; 
+                 }
+             }
+             let newText = cleanedSentences.join('\n\n');
+             if(!newText.trim()){ alert("Could not detect standard 'Word' and 'Example Sentence' pattern."); return; }
+             boxTextarea.value = newText; setBoxContent(openBoxId, newText);
+             if (openBoxId === activeBoxId) { resetProgress(); if (newText.trim()) { parseSentencesIfNeeded(); updateScreenOnly(); } }
+             const btn = document.getElementById('pdfCleanBtn');
+             const orig = btn.innerHTML; btn.innerHTML = "✅"; setTimeout(() => btn.innerHTML = orig, 1500);
+         }
+         
+         function customCleanText() {
+             if (!openBoxId) return;
+             let text = boxTextarea.value;
+             if (!text.trim()) { alert("Box is empty."); return; }
+             let toRemove = prompt("Enter the character, symbol, or word to remove permanently:");
+             if (toRemove !== null && toRemove !== "") {
+                 let newText = text.split(toRemove).join('');
+                 boxTextarea.value = newText; setBoxContent(openBoxId, newText);
+                 if (openBoxId === activeBoxId) { resetProgress(); if (newText.trim()) { parseSentencesIfNeeded(); updateScreenOnly(); } }
+                 const btn = document.getElementById('cstmCleanBtn');
+                 const orig = btn.innerHTML; btn.innerHTML = "✅"; setTimeout(() => btn.innerHTML = orig, 1500);
+             }
+         }
+         
+         // --- Bulk Delete Logic ---
+         bulkDeleteToggleBtn.addEventListener('click', () => {
+             if (!sentences || sentences.length === 0) return;
+             if (!isBulkDeleteMode) {
+                 isBulkDeleteMode = true;
+                 selectedForDelete.clear();
+                 bulkDeleteToggleBtn.style.backgroundColor = '#ef4444';
+                 bulkDeleteToggleBtn.style.color = 'white';
+                 bulkDeleteToggleBtn.innerHTML = '🗑️(0)';
+                 selectAllWrapper.style.display = 'flex';
+                 selectAllCheckbox.checked = false;
+                 renderPlaylist();
+             } else {
+                 if (selectedForDelete.size > 0) {
+                     if (confirm(`Are you sure you want to delete ${selectedForDelete.size} sentences permanently?`)) {
+                         let sortedIndices = Array.from(selectedForDelete).sort((a,b) => b-a);
+                         sortedIndices.forEach(idx => {
+                             sentences.splice(idx, 1);
+                             if (isVideoMode) videoSubtitles.splice(idx, 1);
+                         });
+                         
+                         if (!isVideoMode) {
+                             let newText = sentences.join(' ');
+                             let box = findNode(fsTree, activeBoxId);
+                             if (box) {
+                                 setBoxContent(activeBoxId, newText);
+                                 if (openBoxId === activeBoxId && boxTextarea) boxTextarea.value = newText;
+                             }
+                         }
+                         if (sentenceIndex >= sentences.length) sentenceIndex = Math.max(0, sentences.length - 1);
+                         saveProgress();
+                         
+                         if(sentences.length > 0) {
+                             updateVisibilityStates();
+                             if (!isPlayable(sentenceIndex)) {
+                                 let nextValid = getFirstPlayableIndex();
+                                 if(nextValid !== -1) sentenceIndex = nextValid;
+                             }
+                             updateScreenOnly();
+                         } else {
+                             resetProgress();
+                             currentSentenceDiv.innerText = "Box is now empty.";
+                         }
+                     }
+                 }
+                 isBulkDeleteMode = false;
+                 selectedForDelete.clear();
+                 bulkDeleteToggleBtn.style.backgroundColor = '';
+                 bulkDeleteToggleBtn.style.color = '';
+                 bulkDeleteToggleBtn.innerHTML = '🗑️☑️';
+                 selectAllWrapper.style.display = 'none';
+                 renderPlaylist();
+             }
+         });
+         
+         selectAllCheckbox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            if (isChecked) {
+                sentences.forEach((sentence, index) => {
+                    const el = document.getElementById(`playlist-item-${index}`);
+                    if (el && !el.classList.contains('filtered-out')) {
+                        selectedForDelete.add(index);
+                    }
+                });
+            } else {
+                selectedForDelete.clear();
+            }
+            bulkDeleteToggleBtn.innerHTML = `🗑️(${selectedForDelete.size})`;
+            if (selectedForDelete.size > 0) bulkDeleteToggleBtn.style.backgroundColor = '#ef4444';
+            else bulkDeleteToggleBtn.style.backgroundColor = '#ef4444'; 
+            document.querySelectorAll('.sentence-wrapper').forEach((wrapper, index) => {
+                if (!wrapper.classList.contains('filtered-out')) {
+                    const cb = wrapper.querySelector('.sentence-top-row input[type="checkbox"]');
+                    if (cb) cb.checked = isChecked;
+                }
+            });
+         });
+         
+         // Modals Setup
+         historyBtn.addEventListener('click', () => { historyList.innerHTML = ''; if (playHistory.length === 0) { historyList.innerHTML = '<p style="color:var(--label-color); text-align:center;">No recent history.</p>'; } else { playHistory.forEach(id => { let node = findNode(fsTree, id); if (node) { let pathNodes = getPathToNode(fsTree, id); let pathStr = pathNodes ? pathNodes.map(n => n.name).join(' / ') : node.name; let el = document.createElement('div'); el.className = 'fav-item'; el.innerHTML = `<div><div class="fav-item-title">📄 ${node.name}</div><div class="fav-item-path">${pathStr}</div></div>`; el.onclick = () => { playBoxDirectly(id); historyModal.classList.remove('active'); }; historyList.appendChild(el); } }); } historyModal.classList.add('active'); }); closeHistoryBtn.addEventListener('click', () => historyModal.classList.remove('active')); historyModal.addEventListener('click', (e) => { if (e.target === historyModal) historyModal.classList.remove('active'); });
+         function toggleFav(id) { let node = findNode(fsTree, id); if(node) { node.isFav = !node.isFav; saveFS(); renderFS(); } } openFavoritesBtn.addEventListener('click', () => { favList.innerHTML = ''; let favs = []; function traverse(node, pathArray) { if (node.id !== 'root' && node.isFav) favs.push({ node, path: pathArray }); if (node.children) node.children.forEach(c => traverse(c, [...pathArray, node.name])); } traverse(fsTree, []); if (favs.length === 0) favList.innerHTML = '<p style="color:var(--label-color); text-align:center;">No favorites saved yet.</p>'; else { favs.forEach(f => { let el = document.createElement('div'); el.className = 'fav-item'; el.innerHTML = `<div><div class="fav-item-title">${f.node.type === 'folder' ? '📁' : '📄'} ${f.node.name}</div><div class="fav-item-path">${f.path.join(' / ')}</div></div><div class="fav-heart-btn" style="color:var(--danger); font-size:1.5rem; cursor:pointer;" title="Remove">❤️</div>`; el.onclick = (e) => { if(e.target.classList.contains('fav-heart-btn')){ e.stopPropagation(); toggleFav(f.node.id); openFavoritesBtn.click(); return; } navigateToNode(f.node.id); favModal.classList.remove('active'); }; favList.appendChild(el); }); } favModal.classList.add('active'); }); closeFavBtn.addEventListener('click', () => favModal.classList.remove('active')); favModal.addEventListener('click', (e) => { if (e.target === favModal) favModal.classList.remove('active'); });
+         globalNotesBtn.addEventListener('click', () => { globalNotesList.innerHTML = ''; const currentBoxNotes = []; if (sentences && sentences.length > 0) { sentences.forEach(sentence => { if (stickyNotes[sentence]) currentBoxNotes.push([sentence, stickyNotes[sentence]]); }); } if (currentBoxNotes.length === 0) { globalNotesList.innerHTML = '<p style="color:var(--label-color); text-align:center;">No sticky notes found for this box.</p>'; } else { currentBoxNotes.forEach(([sentence, note]) => { let el = document.createElement('div'); el.className = 'fav-item'; el.style.flexDirection = 'column'; el.style.alignItems = 'flex-start'; el.style.cursor = 'pointer'; el.innerHTML = `<div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--label-color); border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; width: 100%;">"${sentence}"</div><div style="font-size: 1rem; color: var(--text-color); white-space: pre-wrap;">${note}</div>`; el.onclick = () => { const idx = sentences.indexOf(sentence); if(idx !== -1) { globalNotesModal.classList.remove('active'); jumpToSpecificSentence(idx); } }; globalNotesList.appendChild(el); }); } globalNotesModal.classList.add('active'); }); closeGlobalNotesBtn.addEventListener('click', () => globalNotesModal.classList.remove('active')); globalNotesModal.addEventListener('click', (e) => { if (e.target === globalNotesModal) globalNotesModal.classList.remove('active'); });
+         boxStarredBtn.addEventListener('click', () => { boxStarredList.innerHTML = ''; let hasStarred = false; if (sentences && sentences.length > 0) { sentences.forEach((sentence, index) => { if (starredSentences.has(sentence)) { hasStarred = true; let el = document.createElement('div'); el.className = 'fav-item'; el.style.flexDirection = 'column'; el.style.alignItems = 'flex-start'; el.style.cursor = 'pointer'; el.innerHTML = `<div style="font-weight: 600; font-size: 0.95rem; color: var(--text-color); line-height: 1.5;">${index + 1}. ${sentence}</div>`; el.onclick = () => { boxStarredModal.classList.remove('active'); jumpToSpecificSentence(index); }; boxStarredList.appendChild(el); } }); } if (!hasStarred) { boxStarredList.innerHTML = '<p style="color:var(--label-color); text-align:center;">No starred sentences in this box.</p>'; } boxStarredModal.classList.add('active'); }); closeBoxStarredBtn.addEventListener('click', () => boxStarredModal.classList.remove('active')); boxStarredModal.addEventListener('click', (e) => { if (e.target === boxStarredModal) boxStarredModal.classList.remove('active'); });
+         function openParsingGuide() { ruleSplitInput.value = ruleHardSplit; ruleHideInput.value = ruleHideBlock; parsingGuideModal.classList.add('active'); }
+         document.getElementById('closeGuideBtn').addEventListener('click', () => parsingGuideModal.classList.remove('active'));
+         document.getElementById('saveRulesBtn').addEventListener('click', () => { ruleHardSplit = ruleSplitInput.value; ruleHideBlock = ruleHideInput.value; localStorage.setItem('app_rule_split', ruleHardSplit); localStorage.setItem('app_rule_hide', ruleHideBlock); parsingGuideModal.classList.remove('active'); if (openBoxId === activeBoxId && !isVideoMode) { resetProgress(); parseSentencesIfNeeded(); updateScreenOnly(); } });
+         parsingGuideModal.addEventListener('click', (e) => { if (e.target === parsingGuideModal) parsingGuideModal.classList.remove('active'); });
+         
+         // File System
+         function navigateToNode(id) { let pathNodes = getPathToNode(fsTree, id); if (!pathNodes) return; let targetNode = pathNodes[pathNodes.length - 1]; fsSearchInput.value = ''; if (targetNode.type === 'folder') { currentFolderPath = pathNodes.map(n => n.id); renderFS(); } else { currentFolderPath = pathNodes.slice(0, -1).map(n => n.id); renderFS(); openBoxEditor(targetNode.id); } }
+         fsSearchInput.addEventListener('input', () => { renderFS(); }); function renderBreadcrumbs() { breadcrumbsDiv.innerHTML = '🏠 '; let pathNodes = currentFolderPath.map(id => findNode(fsTree, id)).filter(n => n); pathNodes.forEach((node, index) => { let span = document.createElement('span'); span.innerText = node.name; if (index < pathNodes.length - 1) { span.className = 'crumb-link'; span.onclick = () => { currentFolderPath = currentFolderPath.slice(0, index + 1); fsSearchInput.value = ''; renderFS(); }; breadcrumbsDiv.appendChild(span); let sep = document.createElement('span'); sep.innerText = ' / '; sep.style.margin = '0 0.4rem'; sep.style.color = 'var(--label-color)'; breadcrumbsDiv.appendChild(sep); } else breadcrumbsDiv.appendChild(span); }); }
+         function renderFS() { fsContainerView.style.display = 'block'; boxEditorView.style.display = 'none'; renderBreadcrumbs(); let searchQuery = fsSearchInput.value.trim().toLowerCase(); let itemsToRender = []; if (searchQuery) { function searchNodes(node) { if (node.id !== 'root' && node.name.toLowerCase().includes(searchQuery)) itemsToRender.push(node); if (node.children) node.children.forEach(searchNodes); } searchNodes(fsTree); } else { let currentFolder = getCurrentFolder(); if (!currentFolder) { currentFolderPath = ['root']; currentFolder = getCurrentFolder(); } itemsToRender = [...currentFolder.children]; } fsGrid.innerHTML = ''; if (itemsToRender.length === 0) { fsGrid.innerHTML = `<div style="width: 100%; text-align: center; color: var(--label-color); padding: 2rem;">${searchQuery ? 'No results found.' : 'This folder is empty.'}</div>`; return; } let sortedChildren = itemsToRender.sort((a, b) => { if (a.type === b.type) return a.name.localeCompare(b.name); return a.type === 'folder' ? -1 : 1; }); sortedChildren.forEach(item => { let el = document.createElement('div'); el.className = `fs-item ${item.id === activeBoxId ? 'is-active-box' : ''}`; let pathStr = ''; if (searchQuery) { let pathObj = getPathToNode(fsTree, item.id); if(pathObj) pathStr = pathObj.map(n => n.name).join(' / '); } el.title = searchQuery ? pathStr : item.name; let icon = item.type === 'folder' ? '📁' : '📄'; el.innerHTML = `<div class="fs-item-header"><div class="fs-item-fav ${item.isFav ? 'active' : ''}" title="Favorite" onclick="event.stopPropagation(); toggleFav('${item.id}')">${item.isFav ? '❤️' : '🤍'}</div><div class="fs-item-icon">${icon}</div><div class="fs-item-name">${item.name}</div></div>${searchQuery ? `<div style="font-size:0.7rem; color:var(--label-color); margin-top:0.3rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pathStr}</div>` : ''}<div class="fs-item-ctrls" onclick="event.stopPropagation()">${item.type === 'box' ? `<button class="fs-ctrl-btn play-btn" title="Play directly" onclick="playBoxDirectly('${item.id}')">▶️</button>` : ''}<button class="fs-ctrl-btn" title="Rename" onclick="renameNode('${item.id}')">✏️</button><button class="fs-ctrl-btn del-btn" title="Delete" onclick="deleteNode('${item.id}')">🗑️</button></div>`; el.onclick = () => { navigateToNode(item.id); }; fsGrid.appendChild(el); }); }
+         function createFolder() { let name = prompt("Enter new folder name:"); if (!name || !name.trim()) return; getCurrentFolder().children.push({ id: generateId(), type: 'folder', name: name.trim(), children: [], isFav: false }); saveFS(); renderFS(); scrollToEndOfGrid(); }
+         function createBox() { let name = prompt("Enter new box name (e.g. Chapter 1):"); if (!name || !name.trim()) return; getCurrentFolder().children.push({ id: generateId(), type: 'box', name: name.trim(), isFav: false }); saveFS(); renderFS(); scrollToEndOfGrid(); }
+         function scrollToEndOfGrid() { setTimeout(() => { fsGrid.scrollLeft = fsGrid.scrollWidth; }, 50); }
+         function renameNode(id) { let node = findNode(fsTree, id); if (!node) return; let newName = prompt(`Rename ${node.type}:`, node.name); if (newName && newName.trim()) { node.name = newName.trim(); saveFS(); renderFS(); if(id === openBoxId) currentBoxName.innerHTML = `📄 ${node.name}`; } }
+         function deleteNode(id) { if (!confirm("Are you sure you want to delete this permanently?")) return; let parent = findParent(fsTree, id); if (parent) { let nodeToDelete = findNode(fsTree, id); if (nodeToDelete) deepDeleteBoxContents(nodeToDelete); if (nodeToDelete && nodeToDelete.type === 'folder') { if (activeBoxId && getPathToNode(nodeToDelete, activeBoxId)) { activeBoxId = null; resetProgress(); currentSentenceDiv.innerText = "Active box deleted."; updateNowPlaying(); } if (openBoxId && getPathToNode(nodeToDelete, openBoxId)) { closeBoxEditor(); } } else { if (id === activeBoxId) { activeBoxId = null; resetProgress(); currentSentenceDiv.innerText = "Active box deleted."; updateNowPlaying(); } if (id === openBoxId) { closeBoxEditor(); } } parent.children = parent.children.filter(c => c.id !== id); playHistory = playHistory.filter(histId => histId !== id); localStorage.setItem('app_play_history', JSON.stringify(playHistory)); saveFS(); renderFS(); } }
+         function openBoxEditor(id) { let box = findNode(fsTree, id); if (!box || box.type !== 'box') return; openBoxId = id; fsContainerView.style.display = 'none'; boxEditorView.style.display = 'block'; currentBoxName.innerHTML = `📄 ${box.name}`; boxTextarea.value = getBoxContent(id); }
+         
+         // UNLOCK TEXTAREA WHEN CLOSING BOX EDITOR
+         function closeBoxEditor() { openBoxId = null; boxTextarea.value = ''; boxTextarea.readOnly = false; renderFS(); } 
+         
+         boxTextarea.addEventListener('input', (e) => { if (!openBoxId) return; let box = findNode(fsTree, openBoxId); if (box) { setBoxContent(openBoxId, e.target.value); if (openBoxId === activeBoxId && !isVideoMode) { resetProgress(); if (e.target.value.trim()) parseSentencesIfNeeded(); } } });
+         function updateNowPlaying() { if (!activeBoxId || isVideoMode) { nowPlayingIndicator.style.display = 'none'; return; } let path = getPathToNode(fsTree, activeBoxId); if (path) { nowPlayingIndicator.style.display = 'flex'; nowPlayingIndicator.innerHTML = `🎧 ${path.map(n => n.name).join(' / ')}`; } }
+         nowPlayingIndicator.addEventListener('click', () => { if (activeBoxId && !isVideoMode) { let pathNodes = getPathToNode(fsTree, activeBoxId); if (!pathNodes) return; currentFolderPath = pathNodes.slice(0, -1).map(n => n.id); closeBoxEditor(); renderFS(); setTimeout(() => { let activeEl = document.querySelector('.fs-item.is-active-box'); if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100); } });
+         
+         function playBoxInternal(boxId) { 
+             isVideoMode = false;
+             document.getElementById('videoContainer').style.display = 'none'; // FIX: Hide video container
+             activeBoxId = boxId; saveFS(); resetProgress(); updateNowPlaying(); 
+             playHistory = playHistory.filter(id => id !== boxId); playHistory.unshift(boxId); if (playHistory.length > 5) playHistory.pop(); localStorage.setItem('app_play_history', JSON.stringify(playHistory)); 
+             let box = findNode(fsTree, activeBoxId); let content = getBoxContent(activeBoxId); 
+             if (box && content && content.trim()) { if (parseSentencesIfNeeded()) { updateVisibilityStates(); if (!isPlayable(sentenceIndex)) { let nextValid = getFirstPlayableIndex(); if (nextValid !== -1) sentenceIndex = nextValid; } updateScreenOnly(); } } else { currentSentenceDiv.innerText = "This box is empty. Add some text first."; sentences = []; renderPlaylist(); } 
+         }
+         function playCurrentBox() { if (openBoxId) playBoxInternal(openBoxId); } function playBoxDirectly(id) { playBoxInternal(id); renderFS(); } 
+         
+         // Translation & Display Logic 
+         let currentNoteSentence = null; function openStickyNoteModal(sentence) { currentNoteSentence = sentence; stickyNoteText.value = stickyNotes[sentence] || ''; stickyNoteModal.classList.add('active'); setTimeout(() => stickyNoteText.focus(), 100); } saveNoteBtn.onclick = () => { let val = stickyNoteText.value.trim(); if(val) stickyNotes[currentNoteSentence] = val; else delete stickyNotes[currentNoteSentence]; localStorage.setItem('app_sticky_notes', JSON.stringify(stickyNotes)); stickyNoteModal.classList.remove('active'); renderPlaylist(); }; function closeStickyModal() { stickyNoteModal.classList.remove('active'); } cancelNoteBtn.onclick = closeStickyModal; closeNoteBtn.onclick = closeStickyModal; stickyNoteModal.addEventListener('click', (e) => { if (e.target === stickyNoteModal) closeStickyModal(); });
+         
+         async function performTranslation(sentence, index, textSpan, btnElement) { if (translationState[sentence] === 'hi') { translationState[sentence] = 'en'; textSpan.innerText = `${index + 1}. ${sentence}`; if (btnElement) btnElement.innerText = '🌐'; } else { if (translationCache[sentence]) { translationState[sentence] = 'hi'; textSpan.innerText = `${index + 1}. ${translationCache[sentence]}`; if (btnElement) btnElement.innerText = 'अ'; } else { if (btnElement) btnElement.innerText = '⏳'; try { const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=hi&dt=t&q=${encodeURIComponent(sentence)}`; const response = await fetch(url); if (!response.ok) throw new Error('Network error'); const data = await response.json(); let translatedText = ''; if (data && data[0]) data[0].forEach(part => { if (part[0]) translatedText += part[0]; }); if (translatedText) { translationCache[sentence] = translatedText; localStorage.setItem('app_translation_cache', JSON.stringify(translationCache)); translationState[sentence] = 'hi'; textSpan.innerText = `${index + 1}. ${translationCache[sentence]}`; if (btnElement) btnElement.innerText = 'अ'; } else throw new Error('Parse error'); } catch (err) { if (btnElement) btnElement.innerText = '🌐'; alert("Translation failed."); } } } }
+         stopTranslateBtn.addEventListener('click', () => { abortTranslation = true; });
+         
+         globalTranslateBtn.addEventListener('click', async () => {
+             if (!sentences || sentences.length === 0) return;
+             updateVisibilityStates();
+             const start = startSentenceIndex; const end = endSentenceIndex;
+             let allHindi = true;
+             for (let i = start; i <= end; i++) {
+                 if (isPlayable(i) && translationState[sentences[i]] !== 'hi') { allHindi = false; break; }
+             }
+             const targetState = allHindi ? 'en' : 'hi';
+             globalTranslateBtn.style.display = 'none'; stopTranslateBtn.style.display = 'flex'; abortTranslation = false;
+             let cacheUpdated = false;
+             for (let i = start; i <= end; i++) {
+                 if (abortTranslation) break;
+                 if (!isPlayable(i)) continue;
+                 const sentence = sentences[i]; const wrapper = document.getElementById(`playlist-item-${i}`);
+                 if (!wrapper) continue;
+                 const textSpan = wrapper.querySelector('.sentence-text'); const translateBtn = wrapper.querySelector('.translate-btn');
+                 if (targetState === 'en') {
+                     translationState[sentence] = 'en';
+                     if (textSpan) textSpan.innerText = `${i + 1}. ${sentence}`;
+                     if (translateBtn) translateBtn.innerText = '🌐';
+                 } else {
+                     if (translationCache[sentence]) {
+                         translationState[sentence] = 'hi';
+                         if (textSpan) textSpan.innerText = `${i + 1}. ${translationCache[sentence]}`;
+                         if (translateBtn) translateBtn.innerText = 'अ';
+                     } else {
+                         try {
+                             const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=hi&dt=t&q=${encodeURIComponent(sentence)}`;
+                             const response = await fetch(url);
+                             if (response.ok) {
+                                 const data = await response.json();
+                                 let translatedText = '';
+                                 if (data && data[0]) data[0].forEach(part => { if (part[0]) translatedText += part[0]; });
+                                 if (translatedText) {
+                                     translationCache[sentence] = translatedText; translationState[sentence] = 'hi'; cacheUpdated = true;
+                                     if (textSpan) textSpan.innerText = `${i + 1}. ${translatedText}`;
+                                     if (translateBtn) translateBtn.innerText = 'अ';
+                                     await new Promise(resolve => setTimeout(resolve, 250));
+                                 }
+                             }
+                         } catch (err) {}
+                     }
+                 }
+             }
+             if (cacheUpdated) { localStorage.setItem('app_translation_cache', JSON.stringify(translationCache)); }
+             globalTranslateBtn.style.display = 'flex'; globalTranslateBtn.innerHTML = targetState === 'en' ? '🌐' : 'अ'; stopTranslateBtn.style.display = 'none';
+             if (!isPlaying) updateScreenOnly();
+         });
+         
+         wordChunkInput.addEventListener('input', () => { 
+             localStorage.setItem('app_word_chunk', wordChunkInput.value);
+             if (isVideoMode) {
+                 alert("Word chunking is for standard text mode only (not video).");
+                 wordChunkInput.value = '';
+                 return;
+             }
+             sentences = []; 
+             resetProgress(); 
+             if(parseSentencesIfNeeded()) {
+                 updateVisibilityStates();
+                 if (!isPlayable(sentenceIndex)) {
+                     let nextValid = getFirstPlayableIndex();
+                     if(nextValid !== -1) sentenceIndex = nextValid;
+                 }
+                 updateScreenOnly();
+             }
+         });
+         
+         function parseSentencesIfNeeded() { 
+             if (isVideoMode && sentences.length > 0) return true;
+             if (sentences.length > 0) return true; 
+             let box = findNode(fsTree, activeBoxId); 
+             if (!box) { currentSentenceDiv.innerHTML = "Select a Box from the File Manager to begin."; return false; } 
+             let content = getBoxContent(activeBoxId); let rawText = (content || "").trim(); 
+             if (!rawText) { currentSentenceDiv.innerHTML = "Box is empty. Add text to begin."; return false; } 
+             if (ruleHideBlock) {
+                 let escapeHide = ruleHideBlock.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                 let regex = new RegExp(escapeHide + '[\\s\\S]*?' + escapeHide, 'g');
+                 rawText = rawText.replace(regex, ' ');
+             }
+             
+             sentences = [];
+             let chunkVal = parseInt(wordChunkInput.value);
+             
+             if (!isNaN(chunkVal) && chunkVal > 0) {
+                 let allWords = rawText.split(/\s+/).filter(w => w.trim().length > 0);
+                 for (let i = 0; i < allWords.length; i += chunkVal) {
+                     sentences.push(allWords.slice(i, i + chunkVal).join(' '));
+                 }
+             } else {
+                 let chunks = ruleHardSplit ? rawText.split(ruleHardSplit) : [rawText];
+                 const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' }); 
+                 chunks.forEach(chunk => {
+                     let cleanedChunk = chunk.trim().replace(/\s+/g, ' ');
+                     if (cleanedChunk) {
+                         Array.from(segmenter.segment(cleanedChunk)).forEach(s => {
+                             if (s.segment.trim().length > 0) sentences.push(s.segment.trim());
+                         });
+                     }
+                 });
+             }
+             
+             renderPlaylist(); 
+             return sentences.length > 0; 
+         }
+         
+         function deleteSentencePermanently(index) { 
+             if(index < 0 || index >= sentences.length) return; 
+             if (!confirm("Permanently delete this sentence?")) return; 
+             
+             sentences.splice(index, 1); 
+             if (isVideoMode) { 
+                 videoSubtitles.splice(index, 1); 
+             } else { 
+                 let newText = sentences.join(' '); 
+                 let box = findNode(fsTree, activeBoxId); 
+                 if (box) { 
+                     setBoxContent(activeBoxId, newText); 
+                     if (openBoxId === activeBoxId && boxTextarea) boxTextarea.value = newText; 
+                 } 
+             } 
+             
+             if (sentenceIndex >= sentences.length) sentenceIndex = Math.max(0, sentences.length - 1); 
+             saveProgress(); renderPlaylist(); 
+             
+             if(sentences.length > 0) { 
+                 updateVisibilityStates(); updateScreenOnly(); 
+             } else { 
+                 resetProgress(); currentSentenceDiv.innerText = "Box is now empty."; 
+             } 
+         }
+         
+         function toggleStar(sentence, starElement) { if (starredSentences.has(sentence)) { starredSentences.delete(sentence); starElement.innerText = '☆'; } else { starredSentences.add(sentence); starElement.innerText = '⭐'; } localStorage.setItem('app_starred', JSON.stringify(Array.from(starredSentences))); updateVisibilityStates(); }
+         function toggleHide(sentence, hideElement, wrapperDiv) { if (hiddenSentences.has(sentence)) { hiddenSentences.delete(sentence); hideElement.innerText = '👁️'; wrapperDiv.classList.remove('is-hidden'); } else { hiddenSentences.add(sentence); hideElement.innerText = '🙈'; wrapperDiv.classList.add('is-hidden'); } localStorage.setItem('app_hidden', JSON.stringify(Array.from(hiddenSentences))); updateVisibilityStates(); if (!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if(!isPlaying) updateScreenOnly(); } } }
+         
+         document.addEventListener('click', (e) => { if (!e.target.closest('.sentence-content')) { document.querySelectorAll('.sentence-settings-menu').forEach(m => m.classList.remove('active')); } });
+         
+         function renderPlaylist() { 
+             playlistContainer.innerHTML = ''; 
+             if (sentences.length > 0) { 
+                 playlistSection.style.display = 'block'; 
+                 sentences.forEach((sentence, index) => { 
+                     const wrapper = document.createElement('div'); 
+                     wrapper.className = 'sentence-wrapper'; 
+                     wrapper.id = `playlist-item-${index}`; 
+                     if (hiddenSentences.has(sentence)) wrapper.classList.add('is-hidden'); 
+                     const contentDiv = document.createElement('div'); contentDiv.className = 'sentence-content'; 
+                     const topRow = document.createElement('div'); topRow.className = 'sentence-top-row'; 
+                     const textSpan = document.createElement('span'); textSpan.className = 'sentence-text'; 
+                     textSpan.innerText = `${index + 1}. ${translationState[sentence] === 'hi' && translationCache[sentence] ? translationCache[sentence] : sentence}`; 
+                     topRow.appendChild(textSpan);
+                     
+                     if (isBulkDeleteMode) {
+                         const checkbox = document.createElement('input');
+                         checkbox.type = 'checkbox';
+                         checkbox.style.transform = 'scale(1.5)'; checkbox.style.marginLeft = '1rem'; checkbox.style.flexShrink = '0'; checkbox.style.pointerEvents = 'none'; 
+                         checkbox.checked = selectedForDelete.has(index);
+                         topRow.appendChild(checkbox);
+                         contentDiv.onclick = (e) => { e.stopPropagation(); if (selectedForDelete.has(index)) { selectedForDelete.delete(index); checkbox.checked = false; selectAllCheckbox.checked = false; } else { selectedForDelete.add(index); checkbox.checked = true; } bulkDeleteToggleBtn.innerHTML = `🗑️(${selectedForDelete.size})`; if (selectedForDelete.size > 0) bulkDeleteToggleBtn.style.backgroundColor = '#ef4444'; else bulkDeleteToggleBtn.style.backgroundColor = '#ef4444'; };
+                     } else {
+                         const actionsWrapper = document.createElement('div'); actionsWrapper.className = 'playlist-actions-wrapper'; 
+                         const gearBtn = document.createElement('span'); gearBtn.className = 'gear-btn'; gearBtn.title = "Settings"; gearBtn.innerText = '⚙️'; 
+                         const noteBtn = document.createElement('span'); noteBtn.className = 'note-btn'; noteBtn.title = "Sticky Note"; noteBtn.innerHTML = stickyNotes[sentence] ? '📝<span style="color:var(--success);font-size:0.5rem;vertical-align:top">🟢</span>' : '📝'; noteBtn.onclick = (e) => { e.stopPropagation(); openStickyNoteModal(sentence); }; 
+                         actionsWrapper.appendChild(gearBtn); actionsWrapper.appendChild(noteBtn); topRow.appendChild(actionsWrapper); 
+                         const settingsMenu = document.createElement('div'); settingsMenu.className = 'sentence-settings-menu'; 
+                         
+                         const jumpBtn = document.createElement('span'); jumpBtn.className = 'jump-btn'; jumpBtn.title = isVideoMode ? "Jump to Timestamp" : "Highlight in Box"; jumpBtn.innerText = '🎯';
+                         jumpBtn.onclick = (e) => {
+                             e.stopPropagation();
+                             if(isVideoMode && videoSubtitles[index]) {
+                                 videoPlayer.currentTime = videoSubtitles[index].start;
+                                 if(!isPlaying) togglePlayPause();
+                             } else {
+                                 openBoxEditor(activeBoxId);
+                                 setTimeout(() => { 
+                                     let text = boxTextarea.value; let idx = text.indexOf(sentence); 
+                                     if (idx !== -1) { 
+                                         boxTextarea.focus({preventScroll: true}); 
+                                         boxTextarea.setSelectionRange(idx, idx + sentence.length); 
+                                         
+                                         const ratio = idx / text.length;
+                                         const targetScroll = (boxTextarea.scrollHeight * ratio) - (boxTextarea.clientHeight / 3);
+                                         boxTextarea.scrollTop = Math.max(0, targetScroll);
+                                     } 
+                                 }, 100);
+                             }
+                         };
+                         
+                         const askGptMenuBtn = document.createElement('span'); askGptMenuBtn.className = 'ask-gpt-btn'; askGptMenuBtn.title = "Ask GPT"; askGptMenuBtn.innerText = '🤖'; askGptMenuBtn.onclick = (e) => { e.stopPropagation(); const text = sentence; if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => fallbackCopyTextToClipboard(text)); else fallbackCopyTextToClipboard(text); const encoded = encodeURIComponent(text); const isAndroid = /android/i.test(navigator.userAgent); if (isAndroid) window.location.href = `intent://chat.openai.com/?q=${encoded}#Intent;scheme=https;package=com.openai.chatgpt;action=android.intent.action.VIEW;end`; else window.open(`https://chat.openai.com/?q=${encoded}`, '_blank'); }; 
+                         const editBtn = document.createElement('span'); editBtn.className = 'edit-btn'; editBtn.title = "Edit Sentence"; editBtn.innerText = '✏️'; editBtn.onclick = (e) => { e.stopPropagation(); let currentText = sentence; let newText = prompt("Edit sentence:", currentText); if (newText !== null && newText.trim() !== "" && newText.trim() !== currentText) { sentences[index] = newText.trim(); if(isVideoMode && videoSubtitles[index]) videoSubtitles[index].text = newText.trim(); else { let joinedText = sentences.join(' '); setBoxContent(activeBoxId, joinedText); if (openBoxId === activeBoxId && boxTextarea) { boxTextarea.value = joinedText; } } renderPlaylist(); if(!isPlaying) updateScreenOnly(); } };
+                         const hideBtn = document.createElement('span'); hideBtn.className = 'hide-btn'; hideBtn.title = "Hide/Unhide"; hideBtn.innerText = hiddenSentences.has(sentence) ? '🙈' : '👁️'; hideBtn.onclick = (e) => { e.stopPropagation(); toggleHide(sentence, hideBtn, wrapper); }; 
+                         const repeatBtnWrapper = document.createElement('div'); repeatBtnWrapper.style.display = 'flex'; repeatBtnWrapper.style.alignItems = 'center'; 
+                         const repeatBtn = document.createElement('span'); repeatBtn.className = 'repeat-btn'; title = "Set custom repeat"; repeatBtn.innerText = '🔁'; 
+                         const currentCustomVal = customRepeats[sentence]; const repeatBadge = document.createElement('span'); repeatBadge.className = 'repeat-badge'; repeatBadge.innerText = currentCustomVal ? `${currentCustomVal}x` : ''; repeatBadge.style.display = currentCustomVal ? 'inline-block' : 'none'; 
+                         repeatBtn.onclick = (e) => { e.stopPropagation(); let val = prompt(`Set specific repeat count:\n(Empty to clear)`, currentCustomVal || ''); if (val === null) return; let parsed = parseInt(val); if (!isNaN(parsed) && parsed > 0) customRepeats[sentence] = parsed; else delete customRepeats[sentence]; localStorage.setItem('app_custom_repeats', JSON.stringify(customRepeats)); renderPlaylist(); if(!isPlaying) updateScreenOnly(); }; 
+                         repeatBtnWrapper.appendChild(repeatBtn); repeatBtnWrapper.appendChild(repeatBadge); 
+                         const translateBtn = document.createElement('span'); translateBtn.className = 'translate-btn'; translateBtn.title = "Translate"; translateBtn.innerText = translationState[sentence] === 'hi' ? 'अ' : '🌐'; translateBtn.onclick = async (e) => { e.stopPropagation(); await performTranslation(sentence, index, textSpan, translateBtn); }; 
+                         const star = document.createElement('span'); star.className = 'star-btn'; star.title = "Save to favorites"; star.innerText = starredSentences.has(sentence) ? '⭐' : '☆'; star.onclick = (e) => { e.stopPropagation(); toggleStar(sentence, star); }; 
+                         const delBtn = document.createElement('span'); delBtn.className = 'delete-btn'; delBtn.title = "Delete Permanently"; delBtn.innerText = '🗑️'; delBtn.onclick = (e) => { e.stopPropagation(); deleteSentencePermanently(index); }; 
+                         
+                         settingsMenu.appendChild(jumpBtn); settingsMenu.appendChild(editBtn); settingsMenu.appendChild(askGptMenuBtn); settingsMenu.appendChild(hideBtn); settingsMenu.appendChild(repeatBtnWrapper); settingsMenu.appendChild(translateBtn); settingsMenu.appendChild(star); settingsMenu.appendChild(delBtn); 
+                         gearBtn.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.sentence-settings-menu').forEach(m => { if(m !== settingsMenu) m.classList.remove('active'); }); settingsMenu.classList.toggle('active'); if(settingsMenu.classList.contains('active')) { setTimeout(() => { settingsMenu.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50); } }; 
+                         contentDiv.appendChild(settingsMenu);
+                         contentDiv.addEventListener('click', (e) => { if (e.target.closest('.playlist-actions-wrapper') || e.target.closest('.sentence-settings-menu')) return; if (hiddenSentences.has(sentence)) toggleHide(sentence, hideBtn, wrapper); jumpToSpecificSentence(index); }); 
+                     }
+                     contentDiv.insertBefore(topRow, contentDiv.firstChild); wrapper.appendChild(contentDiv); playlistContainer.appendChild(wrapper); 
+                 }); 
+                 updateVisibilityStates(); 
+             } else playlistSection.style.display = 'none'; 
+         }
+         
+         // NEW: ADVANCED TEXTAREA HIGHLIGHTING
+         function highlightInBoxEditor() { 
+             if (!sentences || sentences.length === 0 || sentenceIndex === -1 || boxEditorView.style.display === 'none') return; 
+             const sentence = sentences[sentenceIndex]; 
+             const text = boxTextarea.value; 
+             const idx = text.indexOf(sentence); 
+             if (idx !== -1) { 
+                 
+                 // Lock the textarea temporarily if actively playing so the mobile keyboard doesn't pop up
+                 if (isPlaying) boxTextarea.readOnly = true;
+         
+                 // Force focus and select the text to make the highlight visible
+                 boxTextarea.focus({preventScroll: true});
+                 boxTextarea.setSelectionRange(idx, idx + sentence.length); 
+                 
+                 // Scroll it into view perfectly
+                 const ratio = idx / text.length;
+                 const targetScroll = (boxTextarea.scrollHeight * ratio) - (boxTextarea.clientHeight / 3);
+                 boxTextarea.scrollTop = Math.max(0, targetScroll);
+             } 
+         }
+         
+         function highlightActivePlaylistSentence() { document.querySelectorAll('.sentence-content').forEach(el => el.classList.remove('active')); if (sentences.length > 0 && sentenceIndex !== -1 && sentenceIndex < sentences.length) { const activeWrapper = document.getElementById(`playlist-item-${sentenceIndex}`); if (activeWrapper) { const activeContent = activeWrapper.querySelector('.sentence-content'); if(activeContent) activeContent.classList.add('active'); activeWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } highlightInBoxEditor(); } }
+         function populateVoiceList() { availableVoices = synth.getVoices(); if (availableVoices.length === 0) return; const savedVoice = localStorage.getItem('app_voice'); voiceSelect.innerHTML = ''; availableVoices.forEach((voice) => { const option = document.createElement('option'); option.textContent = `${voice.name} (${voice.lang})`; option.value = voice.name; if (voice.name === savedVoice) option.selected = true; else if (!savedVoice && voice.default) option.selected = true; voiceSelect.appendChild(option); }); } populateVoiceList(); if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoiceList; voiceSelect.addEventListener('change', () => { localStorage.setItem('app_voice', voiceSelect.value); if (isPlaying) { synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
+         
+         function isPlayable(index) { 
+             if (index < startSentenceIndex || index > endSentenceIndex) return false; 
+             if (hiddenSentences.has(sentences[index])) return false; 
+             if (playStarredOnlyInput.checked && !starredSentences.has(sentences[index])) return false; 
+             const minWordsVal = minWordsInput.value.trim();
+             if (minWordsVal) {
+                 let parts = minWordsVal.split('-'); let minW = parseInt(parts[0], 10); let maxW = parts.length > 1 ? parseInt(parts[1], 10) : Infinity;
+                 let count = getWordCount(sentences[index]);
+                 if (!isNaN(minW) && minW > 0 && count < minW) return false;
+                 if (!isNaN(maxW) && count > maxW) return false;
+             }
+             return true; 
+         } 
+         function getPlayableIndicesArray() { let playable = []; for (let idx = startSentenceIndex; idx <= endSentenceIndex; idx++) if (isPlayable(idx)) playable.push(idx); return playable; } function getFirstPlayableIndex() { playedInCurrentLoop = 0; let arr = getPlayableIndicesArray(); if (arr.length === 0) return -1; if (shuffleInput.checked) { playedInCurrentLoop = 1; return arr[Math.floor(Math.random() * arr.length)]; } return arr[0]; } function getNextPlayableIndexAfter(currentIndex) { let arr = getPlayableIndicesArray(); if (arr.length === 0) return -1; if (shuffleInput.checked) { playedInCurrentLoop++; if (playedInCurrentLoop >= arr.length) { playedInCurrentLoop = 0; return -1; } return arr[Math.floor(Math.random() * arr.length)]; } let currentPos = arr.indexOf(currentIndex); if (currentPos === -1) return arr[0]; let skipCount = parseInt(skipIntervalInput.value) || 0; let nextPos = currentPos + 1 + skipCount; if (nextPos >= arr.length) return -1; return arr[nextPos]; }
+         
+         function updateVisibilityStates() { 
+             if (!sentences || sentences.length === 0) return; 
+             let maxIdx = sentences.length - 1; startSentenceIndex = 0; endSentenceIndex = maxIdx; 
+             const rangeVal = rangeInput.value.trim(); 
+             if (rangeVal) { 
+                 const parts = rangeVal.split('-').map(p => parseInt(p, 10)); 
+                 if (parts.length === 2) { 
+                     let s = parts[0] - 1; let e = parts[1] - 1; 
+                     if (!isNaN(s) && s >= 0 && s <= maxIdx) startSentenceIndex = s; 
+                     if (!isNaN(e) && e >= startSentenceIndex && e <= maxIdx) endSentenceIndex = e; 
+                     else if (!isNaN(e) && e > maxIdx) endSentenceIndex = maxIdx; 
+                 } else if (parts.length === 1 && !isNaN(parts[0])) { 
+                     let s = parts[0] - 1; if (s >= 0 && s <= maxIdx) { startSentenceIndex = s; endSentenceIndex = s; } 
+                 } 
+             } 
+             const minWordsVal = minWordsInput.value.trim();
+             let minW = 0, maxW = Infinity;
+             if(minWordsVal) { let parts = minWordsVal.split('-'); minW = parseInt(parts[0], 10); maxW = parts.length > 1 ? parseInt(parts[1], 10) : Infinity; }
+             
+             document.querySelectorAll('.sentence-wrapper').forEach((el, index) => { 
+                 let outOfRange = false;
+                 if (index < startSentenceIndex || index > endSentenceIndex || (playStarredOnlyInput.checked && !starredSentences.has(sentences[index]))) outOfRange = true;
+                 if (outOfRange) el.classList.add('out-of-range'); else el.classList.remove('out-of-range'); 
+                 let count = getWordCount(sentences[index]); let failWords = false;
+                 if (!isNaN(minW) && minW > 0 && count < minW) failWords = true;
+                 if (!isNaN(maxW) && count > maxW) failWords = true;
+                 if (failWords) el.classList.add('filtered-out'); else el.classList.remove('filtered-out');
+             }); 
+         }
+         
+         // Event listeners for Settings
+         function applyTheme(isDark) { if (isDark) { document.documentElement.classList.add('dark-theme'); document.body.classList.add('dark-theme'); themeToggleBtn.innerText = "☀️"; } else { document.documentElement.classList.remove('dark-theme'); document.body.classList.remove('dark-theme'); themeToggleBtn.innerText = "🌙"; } } themeToggleBtn.addEventListener('click', () => { const isDark = !document.body.classList.contains('dark-theme'); applyTheme(isDark); localStorage.setItem('app_theme', isDark ? 'dark' : 'light'); }); openSettingsBtn.addEventListener('click', () => settingsModal.classList.add('active')); closeSettingsBtn.addEventListener('click', () => settingsModal.classList.remove('active')); settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('active'); });
+         
+         // --- Backup & Restore System (Export/Import) ---
+         exportBtn.addEventListener('click', async () => {
+             exportBtn.innerHTML = '⏳'; 
+             try {
+                 let backup = {
+                     localStorage: {}
+                 };
+                 
+                 // Only backup fs_tree and box contents (excluding settings, video, srt)
+                 const fsTreeData = localStorage.getItem('app_fs_tree');
+                 if (fsTreeData) backup.localStorage['app_fs_tree'] = fsTreeData;
+                 
+                 for (let i = 0; i < localStorage.length; i++) {
+                     let key = localStorage.key(i);
+                     if (key && key.startsWith('app_box_content_')) {
+                         backup.localStorage[key] = localStorage.getItem(key);
+                     }
+                 }
+                 
+                 const dataStr = JSON.stringify(backup);
+                 const blob = new Blob([dataStr], { type: "application/json" });
+                 const url = URL.createObjectURL(blob);
+                 
+                 const dlAnchorElem = document.createElement('a');
+                 dlAnchorElem.setAttribute("href", url);
+                 dlAnchorElem.setAttribute("download", "sentence_repeater_files_backup.json");
+                 dlAnchorElem.click();
+                 URL.revokeObjectURL(url);
+                 
+             } catch (error) {
+                 console.error("Backup failed:", error);
+                 alert("Backup failed.");
+             }
+             exportBtn.innerHTML = '💾';
+         });
+         
+         importBtn.addEventListener('click', () => importInput.click());
+         importInput.addEventListener('change', (e) => {
+             const file = e.target.files[0];
+             if (!file) return;
+             const reader = new FileReader();
+             reader.onload = async (evt) => {
+                 try {
+                     const backup = JSON.parse(evt.target.result);
+                     
+                     // Restore only the specific File System Keys
+                     if (backup.localStorage) {
+                         for (let key in backup.localStorage) {
+                             localStorage.setItem(key, backup.localStorage[key]);
+                         }
+                     }
+                     
+                     alert("Files restored successfully! The app will now reload.");
+                     location.reload();
+                     
+                 } catch (error) {
+                     console.error("Restore failed:", error);
+                     alert("Restore failed. The backup file might be invalid or corrupted.");
+                 }
+             };
+             reader.readAsText(file);
+             e.target.value = '';
+         });
+         
+         function loadSettings() { 
+             if (localStorage.getItem('app_theme') === 'dark') applyTheme(true); 
+             if (localStorage.getItem('app_play_history')) try { playHistory = JSON.parse(localStorage.getItem('app_play_history')); } catch(e){} 
+             if (localStorage.getItem('app_delay')) delayInput.value = localStorage.getItem('app_delay'); 
+             if (localStorage.getItem('app_word_chunk')) wordChunkInput.value = localStorage.getItem('app_word_chunk');
+             if (localStorage.getItem('app_sentence_repeats')) sentenceRepeatInput.value = localStorage.getItem('app_sentence_repeats'); 
+             if (localStorage.getItem('app_passage_repeats')) passageRepeatInput.value = localStorage.getItem('app_passage_repeats'); 
+             if (localStorage.getItem('app_range')) rangeInput.value = localStorage.getItem('app_range'); 
+             if (localStorage.getItem('app_min_words')) minWordsInput.value = localStorage.getItem('app_min_words'); 
+             if (localStorage.getItem('app_play_starred_only') === 'true') playStarredOnlyInput.checked = true; 
+             if (localStorage.getItem('app_shuffle') === 'true') shuffleInput.checked = true; 
+             if (localStorage.getItem('app_skip_interval')) skipIntervalInput.value = localStorage.getItem('app_skip_interval'); 
+             if (localStorage.getItem('app_starred')) try { starredSentences = new Set(JSON.parse(localStorage.getItem('app_starred'))); } catch(e){} 
+             if (localStorage.getItem('app_hidden')) try { hiddenSentences = new Set(JSON.parse(localStorage.getItem('app_hidden'))); } catch(e){} 
+             if (localStorage.getItem('app_custom_repeats')) try { customRepeats = JSON.parse(localStorage.getItem('app_custom_repeats')); } catch(e){} 
+             if (localStorage.getItem('app_sticky_notes')) try { stickyNotes = JSON.parse(localStorage.getItem('app_sticky_notes')); } catch(e){} 
+             if (localStorage.getItem('app_translation_cache')) try { translationCache = JSON.parse(localStorage.getItem('app_translation_cache')); } catch(e){} 
+             if (localStorage.getItem('app_speed')) { speedInput.value = localStorage.getItem('app_speed'); speedValueDisplay.innerText = `${speedInput.value}x`; } 
+             if (localStorage.getItem('app_sentence_index')) sentenceIndex = parseInt(localStorage.getItem('app_sentence_index'), 10) || 0; 
+         }
+         
+         window.addEventListener('DOMContentLoaded', () => { 
+             loadSettings(); loadFS(); renderFS(); updateNowPlaying(); 
+             
+             // --- BACKGROUND PLAYBACK: Setup Media Session Controls ---
+             if ('mediaSession' in navigator) {
+                 navigator.mediaSession.setActionHandler('play', () => { if (!isPlaying) togglePlayPause(); });
+                 navigator.mediaSession.setActionHandler('pause', () => { if (isPlaying) togglePlayPause(); });
+             }
+         
+             if (activeBoxId && activeBoxId !== 'video_mode') { 
+                 let box = findNode(fsTree, activeBoxId); let content = getBoxContent(activeBoxId); 
+                 if (box && content && content.trim()) { 
+                     parseSentencesIfNeeded(); updateVisibilityStates(); 
+                     if (!isPlayable(sentenceIndex)) { 
+                         let nearestValid = getFirstPlayableIndex(); 
+                         if (nearestValid !== -1) sentenceIndex = nearestValid; 
+                     } updateScreenOnly(); autoStartOverlay.style.display = 'flex'; 
+                 } 
+             } 
+         });
+         
+         autoStartBtn.addEventListener('click', () => { autoStartOverlay.style.display = 'none'; try { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err=>{}); } catch(e) {} if (!isPlaying && parseSentencesIfNeeded()) { isPlaying = true; speakNext(); } }); delayInput.addEventListener('input', () => localStorage.setItem('app_delay', delayInput.value)); sentenceRepeatInput.addEventListener('input', () => { localStorage.setItem('app_sentence_repeats', sentenceRepeatInput.value); if(!isPlaying) updateScreenOnly(); }); passageRepeatInput.addEventListener('input', () => localStorage.setItem('app_passage_repeats', passageRepeatInput.value)); skipIntervalInput.addEventListener('input', () => localStorage.setItem('app_skip_interval', skipIntervalInput.value)); shuffleInput.addEventListener('change', () => { localStorage.setItem('app_shuffle', shuffleInput.checked); if(!isPlaying) { playedInCurrentLoop = 0; updateScreenOnly(); } }); 
+         rangeInput.addEventListener('input', () => { localStorage.setItem('app_range', rangeInput.value); updateVisibilityStates(); if(!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) sentenceIndex = nextIdx; saveProgress(); if(!isPlaying) updateScreenOnly(); } }); 
+         minWordsInput.addEventListener('input', () => { localStorage.setItem('app_min_words', minWordsInput.value); updateVisibilityStates(); if (sentences.length > 0 && sentenceIndex >= 0 && !isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if (!isPlaying) updateScreenOnly(); } else { if (isPlaying) togglePlayPause(); currentSentenceDiv.innerText = "No playable sentences found matching your filters."; } } });
+         playStarredOnlyInput.addEventListener('change', () => { localStorage.setItem('app_play_starred_only', playStarredOnlyInput.checked); updateVisibilityStates(); if (!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if (!isPlaying) updateScreenOnly(); } else { if (isPlaying) togglePlayPause(); currentSentenceDiv.innerText = "No playable sentences found."; } } }); speedInput.addEventListener('input', () => { speedValueDisplay.innerText = `${speedInput.value}x`; localStorage.setItem('app_speed', speedInput.value); if(isVideoMode && videoPlayer) { videoPlayer.playbackRate = parseFloat(speedInput.value) || 1.0; } if (isPlaying && !isVideoMode) { synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
+         
+         function saveProgress() { localStorage.setItem('app_sentence_index', sentenceIndex); } function getMaxSentenceRepeats(sentenceStr) { if (!sentenceStr) return parseInt(sentenceRepeatInput.value) || 1; let customVal = customRepeats[sentenceStr]; return (customVal !== undefined && customVal !== null) ? customVal : (parseInt(sentenceRepeatInput.value) || 1); }
+         function updateScreenOnly() { if (!sentences || sentences.length === 0 || sentenceIndex === -1) return; const sentenceStr = sentences[sentenceIndex]; const maxRepeats = getMaxSentenceRepeats(sentenceStr); progressText.innerText = `Sentence: ${sentenceIndex + 1}/${sentences.length} (Repeat: ${sentenceRepeatCount + 1}/${maxRepeats})`; currentSentenceDiv.innerHTML = `${renderSentenceWithWords(sentenceStr)}<br><span class="pause-text">(Paused. Press Play to start.)</span>`; highlightActivePlaylistSentence(); }
+         
+         function jumpToSpecificSentence(index) { 
+             updateVisibilityStates(); 
+             if (index < startSentenceIndex || index > endSentenceIndex) { rangeInput.value = ""; localStorage.setItem('app_range', ""); } 
+             if (playStarredOnlyInput.checked && !starredSentences.has(sentences[index])) { playStarredOnlyInput.checked = false; localStorage.setItem('app_play_starred_only', false); } 
+             updateVisibilityStates(); 
+             
+             // NEW: Track if we wanted it to be playing
+             if (!isJumping) targetPlayingState = isPlaying;
+             isJumping = true; // Tell the app we are currently skipping
+             isPlaying = false; // Temporarily block old callbacks from ruining state
+             
+             // --- BACKGROUND PLAYBACK: Clean intervals when jumping ---
+             synth.cancel(); 
+             if (videoPollingFrame) cancelAnimationFrame(videoPollingFrame); 
+             if (window.bgVideoInterval) clearInterval(window.bgVideoInterval);
+             
+             videoPlayer.pause();
+             clearTimeout(delayTimeout); clearWordTimers(); 
+             sentenceIndex = index; sentenceRepeatCount = 0; playedInCurrentLoop = 0; 
+             saveProgress(); 
+             
+             // Debounce the rapid pen clicks. Wait 250ms for Android TTS to settle!
+             if (window.jumpTimeout) clearTimeout(window.jumpTimeout);
+             window.jumpTimeout = setTimeout(() => {
+                 isJumping = false;
+                 if (targetPlayingState) {
+                     isPlaying = true;
+                     updateFloatingBtn();
+                     speakNext();
+                 } else {
+                     updateFloatingBtn();
+                     updateScreenOnly();
+                 }
+             }, 250); 
+         }
+         
+         function renderSentenceWithWords(sentence) { if(!sentence) return ""; let html = ''; let tokens = sentence.split(/(\s+)/); let currentIndex = 0; let idx = 0; tokens.forEach(token => { if (/\S/.test(token)) { const start = currentIndex; const end = currentIndex + token.length; const safe = token.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); html += `<span class="word" data-idx="${idx}" data-start="${start}" data-end="${end}">${safe}</span>`; idx++; } else html += token; currentIndex += token.length; }); return html; }
+         function highlightWordByIndex(idx) { currentSentenceDiv.querySelectorAll('.word').forEach(s => s.classList.remove('word-highlight')); const target = currentSentenceDiv.querySelector(`.word[data-idx="${idx}"]`); if (target) target.classList.add('word-highlight'); } function highlightWordAt(charIndex) { const spans = currentSentenceDiv.querySelectorAll('.word'); let highlighted = false; spans.forEach(span => { span.classList.remove('word-highlight'); const start = parseInt(span.dataset.start); const end = parseInt(span.dataset.end); if (!highlighted && charIndex >= start && charIndex < end) { span.classList.add('word-highlight'); highlighted = true; } }); } function clearWordTimers() { wordTimers.forEach(t => clearTimeout(t)); wordTimers = []; } function clearWordHighlight() { clearWordTimers(); currentSentenceDiv.querySelectorAll('.word').forEach(s => s.classList.remove('word-highlight')); } function estimateWordDuration(word, rate) { return Math.max(200, (word.length * 60 + 100)) / rate; } function scheduleWordHighlights(sentence, rate) { clearWordTimers(); const words = sentence.split(/\s+/).filter(w => w.length > 0); let elapsed = 100; words.forEach((word, i) => { const t = setTimeout(() => { if (!boundarySupported) requestAnimationFrame(() => highlightWordByIndex(i)); }, elapsed); wordTimers.push(t); elapsed += estimateWordDuration(word, rate); }); }
+         
+         // UNLOCK TEXTAREA WHEN RESETTING
+         function resetProgress() { 
+             isPlaying = false; 
+             boxTextarea.readOnly = false;
+             synth.cancel(); 
+             videoPlayer.pause(); 
+             
+             // --- BACKGROUND PLAYBACK: Clear intervals ---
+             if (videoPollingFrame) cancelAnimationFrame(videoPollingFrame); 
+             if (window.bgVideoInterval) clearInterval(window.bgVideoInterval); 
+             
+             clearTimeout(delayTimeout); 
+             clearWordTimers(); 
+             
+             if (!isVideoMode) {
+                 sentences = []; 
+                 playlistSection.style.display = 'none'; 
+             }
+             
+             updateVisibilityStates(); 
+             sentenceIndex = startSentenceIndex || 0; 
+             sentenceRepeatCount = 0; 
+             passageRepeatCount = 0; 
+             playedInCurrentLoop = 0; 
+             saveProgress(); 
+             updateFloatingBtn(); 
+         }
+         
+         // Core Loop Completion
+         function handleSentenceEnd() {
+             if (isJumping) return; // Prevent old audio end from advancing loop during skip
+             
+             const sentence = sentences[sentenceIndex];
+             const maxSentenceRepeats = getMaxSentenceRepeats(sentence);
+             const maxPassageRepeats = parseInt(passageRepeatInput.value) || 1;
+             clearWordHighlight(); 
+             sentenceRepeatCount++; 
+             
+             if (sentenceRepeatCount >= maxSentenceRepeats) { 
+                 sentenceRepeatCount = 0; 
+                 let nextIndex = getNextPlayableIndexAfter(sentenceIndex); 
+                 if (nextIndex !== -1) sentenceIndex = nextIndex; 
+                 else { 
+                     passageRepeatCount++; 
+                     if (passageRepeatCount >= maxPassageRepeats) { 
+                         isPlaying = false; 
+                         boxTextarea.readOnly = false; // UNLOCK TEXTAREA
+                         updateFloatingBtn(); 
+                         currentSentenceDiv.innerText = "Finished reading!"; 
+                         progressText.innerText = `Progress: Done`; repeatText.innerText = `Passage Loop: Done`; 
+                         document.querySelectorAll('.sentence-content').forEach(el => el.classList.remove('active')); 
+                         sentenceIndex = getFirstPlayableIndex(); 
+                         if (sentenceIndex === -1) sentenceIndex = startSentenceIndex; 
+                         passageRepeatCount = 0; saveProgress(); return; 
+                     } else { 
+                         let resetIndex = getFirstPlayableIndex(); 
+                         if (resetIndex !== -1) sentenceIndex = resetIndex; 
+                     } 
+                 } 
+                 saveProgress(); 
+             } 
+             
+             const delaySeconds = parseFloat(delayInput.value) || 0; 
+             if (delaySeconds > 0 && isPlaying) { 
+                 currentSentenceDiv.innerHTML = `${renderSentenceWithWords(sentence)}<br><span class="pause-text">(Pausing for ${delaySeconds} seconds...)</span>`; 
+                 delayTimeout = setTimeout(speakNext, delaySeconds * 1000); 
+             } else {
+                 speakNext();
+             }
+         }
+         
+         function speakNext() { 
+             if (!isPlaying) return; 
+             updateVisibilityStates(); 
+             if (!isPlayable(sentenceIndex)) { 
+                 let fallback = getFirstPlayableIndex(); 
+                 if (fallback !== -1) sentenceIndex = fallback; 
+                 else { isPlaying = false; updateFloatingBtn(); currentSentenceDiv.innerText = "No playable sentences found. Please adjust filters or range."; return; } 
+             } 
+             const sentence = sentences[sentenceIndex]; 
+             const maxSentenceRepeats = getMaxSentenceRepeats(sentence); 
+             const maxPassageRepeats = parseInt(passageRepeatInput.value) || 1; 
+             progressText.innerText = `Sentence: ${sentenceIndex + 1}/${sentences.length} (Repeat: ${sentenceRepeatCount + 1}/${maxSentenceRepeats})`; 
+             repeatText.innerText = `Passage Loop: ${passageRepeatCount + 1}/${maxPassageRepeats}`; 
+             currentSentenceDiv.innerHTML = renderSentenceWithWords(sentence); 
+             highlightActivePlaylistSentence(); 
+         
+             if (isVideoMode && videoSubtitles[sentenceIndex]) {
+                 // --- BACKGROUND PLAYBACK FIXES ---
+                 const sub = videoSubtitles[sentenceIndex];
+                 
+                 videoPlayer.pause(); 
+                 videoPlayer.currentTime = sub.start;
+                 videoPlayer.playbackRate = parseFloat(speedInput.value) || 1.0;
+                 
+                 // Update the lock screen details
+                 if ('mediaSession' in navigator) {
+                     navigator.mediaSession.metadata = new MediaMetadata({
+                         title: `Sentence ${sentenceIndex + 1}/${sentences.length}`,
+                         artist: 'Ultimate Sentence Repeater',
+                         album: 'Video Active'
+                     });
+                 }
+                 
+                 // Wait for the seek to complete before playing to avoid visual stutter
+                 videoPlayer.onseeked = function() {
+                     videoPlayer.onseeked = null; 
+                     if (!isPlaying) return; 
+                     
+                     let playPromise = videoPlayer.play();
+                     if (playPromise !== undefined) {
+                         playPromise.then(() => {
+                             // Use setInterval instead of requestAnimationFrame. 
+                             // setInterval is permitted to run in the background (though slightly throttled)
+                             if (window.bgVideoInterval) clearInterval(window.bgVideoInterval);
+                             
+                             window.bgVideoInterval = setInterval(() => {
+                                 if (!isPlaying) {
+                                     clearInterval(window.bgVideoInterval);
+                                     return;
+                                 }
+                                 if (videoPlayer.currentTime >= sub.end) {
+                                     clearInterval(window.bgVideoInterval);
+                                     videoPlayer.pause();
+                                     handleSentenceEnd();
+                                 }
+                             }, 50); // Checking every 50ms ensures smooth subtitle splits
+                         }).catch(e => {
+                             console.error("Video play failed:", e);
+                             isPlaying = false;
+                             updateFloatingBtn();
+                             currentSentenceDiv.innerHTML += `<br><br><span style="color: var(--danger); font-weight: bold;">Playback blocked by browser. Please click Play manually to resume.</span>`;
+                         });
+                     }
+                 };
+             } else {
+                 // TTS Playback Logic
+                 const utterance = new SpeechSynthesisUtterance(sentence); 
+                 const selectedVoice = availableVoices.find(v => v.name === voiceSelect.value); 
+                 if (selectedVoice) { utterance.voice = selectedVoice; utterance.lang = selectedVoice.lang; } else utterance.lang = 'en-US'; 
+                 utterance.rate = parseFloat(speedInput.value) || 1.0; 
+                 
+                 // Fallback Media Session for TTS
+                 if ('mediaSession' in navigator) {
+                     navigator.mediaSession.metadata = new MediaMetadata({
+                         title: `Sentence ${sentenceIndex + 1}/${sentences.length}`,
+                         artist: 'Reading Text',
+                         album: 'TTS Active'
+                     });
+                 }
+                 
+                 utterance.onstart = () => { boundarySupported = false; scheduleWordHighlights(sentence, utterance.rate); }; 
+                 utterance.onboundary = (event) => { if (event.name === 'word') { if (!boundarySupported) { boundarySupported = true; clearWordTimers(); } requestAnimationFrame(() => highlightWordAt(event.charIndex)); } }; 
+                 utterance.onend = handleSentenceEnd;
+                 
+                 // PREVENT ANDROID SYNTH BUG
+                 utterance.onerror = (e) => { 
+                     if (isJumping) return;
+                     if (e.error !== 'canceled') { console.error("Synthesis error", e); isPlaying = false; updateFloatingBtn(); } 
+                 }; 
+                 
+                 synth.speak(utterance); 
+             }
+         }
+         
+         function getCurrentSentenceText() { return (sentences.length > 0 && sentenceIndex !== -1 && sentenceIndex < sentences.length) ? sentences[sentenceIndex] : (getBoxContent(activeBoxId) || ''); } function showCopiedFeedback() { const orig = copyBtn.innerHTML; copyBtn.innerHTML = "✅"; setTimeout(() => { copyBtn.innerHTML = orig; }, 1500); } function fallbackCopyTextToClipboard(text) { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.top = "0"; textArea.style.left = "0"; textArea.style.position = "fixed"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); try { if (document.execCommand('copy')) showCopiedFeedback(); } catch (err) {} document.body.removeChild(textArea); } copyBtn.addEventListener('click', () => { const textToCopy = getCurrentSentenceText(); if (!textToCopy || !textToCopy.trim()) return; if (!navigator.clipboard) { fallbackCopyTextToClipboard(textToCopy); return; } navigator.clipboard.writeText(textToCopy).then(showCopiedFeedback).catch(() => fallbackCopyTextToClipboard(textToCopy)); }); function updateFloatingBtn() { if (isPlaying) { floatingTtsBtn.innerHTML = '⏸️'; floatingTtsBtn.classList.add('is-playing'); } else { floatingTtsBtn.innerHTML = '▶️'; floatingTtsBtn.classList.remove('is-playing'); } } 
+         
+         // UNLOCK TEXTAREA WHEN PAUSING
+         function togglePlayPause() { 
+             if (isPlaying) { 
+                 isPlaying = false; 
+                 boxTextarea.readOnly = false; // UNLOCK
+                 if (isVideoMode) {
+                     videoPlayer.pause();
+                     
+                     // --- BACKGROUND PLAYBACK: Clear intervals ---
+                     if (videoPollingFrame) cancelAnimationFrame(videoPollingFrame);
+                     if (window.bgVideoInterval) clearInterval(window.bgVideoInterval);
+                 } else {
+                     synth.cancel();
+                 }
+                 clearTimeout(delayTimeout); clearWordHighlight(); currentSentenceDiv.innerHTML += `<br><span class="pause-text">(Paused. Press Play to restart this repetition.)</span>`; 
+             } else { 
+                 if (!parseSentencesIfNeeded()) { alert("Please select a valid Box with text first, or upload SRT for video."); return; } 
+                 try { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); } catch(e) {} 
+                 isPlaying = true; speakNext(); 
+             } 
+             updateFloatingBtn(); 
+         } 
+         
+         floatingTtsBtn.addEventListener('click', togglePlayPause); setInterval(updateFloatingBtn, 500); 
+         window.addEventListener('beforeunload', () => { synth.cancel(); videoPlayer.pause(); });
+         
+         /* --- Interactive Dictionary Engine --- */
+         const dictPopup = document.getElementById('dictPopup');
+         const dictWord = document.getElementById('dictWord');
+         const dictMeaning = document.getElementById('dictMeaning');
+         
+         document.getElementById('currentSentence').addEventListener('click', async (e) => {
+             const wordEl = e.target.closest('.word');
+             if(wordEl) {
+                 if(isPlaying) togglePlayPause(); 
+                 const word = wordEl.innerText.replace(/[^a-zA-Z]/g, '').toLowerCase();
+                 if(!word) return;
+                 
+                 dictPopup.style.display = 'flex';
+                 const rect = wordEl.getBoundingClientRect();
+                 const popupWidth = 300;
+                 let leftPos = rect.left;
+                 if (leftPos + popupWidth > window.innerWidth) leftPos = window.innerWidth - popupWidth - 10;
+                 dictPopup.style.left = Math.max(10, leftPos) + 'px';
+                 dictPopup.style.top = (rect.bottom + 10) + 'px';
+                 
+                 dictWord.innerText = word;
+                 dictMeaning.innerHTML = "<em>Fetching definition...</em>";
+                 
+                 try {
+                     const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                     if(!res.ok) throw new Error("Not found");
+                     const data = await res.json();
+                     let meaningsHtml = '';
+                     data[0].meanings.slice(0,2).forEach(m => {
+                         meaningsHtml += `<strong>${m.partOfSpeech}</strong>: ${m.definitions[0].definition}<br><br>`;
+                     });
+                     dictMeaning.innerHTML = meaningsHtml;
+                 } catch (err) {
+                     dictMeaning.innerHTML = "<span style='color:var(--danger)'>Definition not found. Try translating instead.</span>";
+                 }
+             }
+         });
+         
+         document.addEventListener('click', (e) => {
+             if(!e.target.closest('.dict-popup') && !e.target.closest('.word')) {
+                 dictPopup.style.display = 'none';
+             }
+         });
+         
+         // --- Smart Pen / Keyboard Navigation ---
+         document.addEventListener('keydown', (e) => {
+             // Only trigger if we have sentences loaded
+             if (!sentences || sentences.length === 0) return;
+         
+             // Ensure the user isn't actively typing inside a text box (like the Search bar or Box Editor)
+             // We allow PageUp/PageDown even in the text area so the Pen still works while highlighted
+             const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+             const isArrow = e.key === "ArrowRight" || e.key === "ArrowLeft";
+             
+             // If typing in an input/textarea (AND the box is NOT readonly), DO NOT hijack arrow keys so the user can type normally.
+             if (isInput && isArrow && !boxTextarea.readOnly) return; 
+         
+             // Next Sentence (Pen Down / Right Button / PageDown)
+             if (e.key === "ArrowRight" || e.key === "PageDown") {
+                 e.preventDefault(); 
+                 let nextIndex = getNextPlayableIndexAfter(sentenceIndex);
+                 if (nextIndex !== -1) jumpToSpecificSentence(nextIndex);
+             }
+             
+             // Previous Sentence (Pen Up / Left Button / PageUp)
+             if (e.key === "ArrowLeft" || e.key === "PageUp") {
+                 e.preventDefault(); 
+                 
+                 // Calculate previous playable sentence manually
+                 let prevIndex = sentenceIndex - 1;
+                 while (prevIndex >= 0 && !isPlayable(prevIndex)) {
+                     prevIndex--;
+                 }
+                 
+                 if (prevIndex >= 0) jumpToSpecificSentence(prevIndex);
+             }
+         });
+      </script>
+   </body>
+</html>
