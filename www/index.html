@@ -1055,22 +1055,32 @@
              let chunkVal = parseInt(wordChunkInput.value);
              
              if (!isNaN(chunkVal) && chunkVal > 0) {
-                 let allWords = rawText.split(/\s+/).filter(w => w.trim().length > 0);
-                 for (let i = 0; i < allWords.length; i += chunkVal) {
-                     sentences.push(allWords.slice(i, i + chunkVal).join(' '));
-                 }
-             } else {
-                 let chunks = ruleHardSplit ? rawText.split(ruleHardSplit) : [rawText];
-                 const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' }); 
-                 chunks.forEach(chunk => {
-                     let cleanedChunk = chunk.trim().replace(/\s+/g, ' ');
-                     if (cleanedChunk) {
-                         Array.from(segmenter.segment(cleanedChunk)).forEach(s => {
-                             if (s.segment.trim().length > 0) sentences.push(s.segment.trim());
-                         });
-                     }
-                 });
-             }
+                let allWords = rawText.split(/\s+/).filter(w => w.trim().length > 0);
+                for (let i = 0; i < allWords.length; i += chunkVal) {
+                    sentences.push(allWords.slice(i, i + chunkVal).join(' '));
+                }
+            } else {
+                let chunks = ruleHardSplit ? rawText.split(ruleHardSplit) : [rawText];
+                chunks.forEach(chunk => {
+                    let cleanedChunk = chunk.trim().replace(/\s+/g, ' ');
+                    if (cleanedChunk) {
+                        if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+                            const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' }); 
+                            Array.from(segmenter.segment(cleanedChunk)).forEach(s => {
+                                if (s.segment.trim().length > 0) sentences.push(s.segment.trim());
+                            });
+                        } else {
+                            // Fallback sentence splitter for Android WebViews lacking Intl.Segmenter
+                            let matches = cleanedChunk.match(/[^.!?]+[.!?]+(?=\s+|$)|[^.!?]+$/g);
+                            if (matches) {
+                                matches.forEach(s => { if (s.trim().length > 0) sentences.push(s.trim()); });
+                            } else {
+                                sentences.push(cleanedChunk);
+                            }
+                        }
+                    }
+                });
+            }
              
              renderPlaylist(); 
              return sentences.length > 0; 
@@ -1558,31 +1568,42 @@
                  };
              } else {
                  // TTS Playback Logic
-                 const utterance = new SpeechSynthesisUtterance(sentence); 
-                 const selectedVoice = availableVoices.find(v => v.name === voiceSelect.value); 
-                 if (selectedVoice) { utterance.voice = selectedVoice; utterance.lang = selectedVoice.lang; } else utterance.lang = 'en-US'; 
-                 utterance.rate = parseFloat(speedInput.value) || 1.0; 
-                 
-                 // Fallback Media Session for TTS
-                 if ('mediaSession' in navigator) {
-                     navigator.mediaSession.metadata = new MediaMetadata({
-                         title: `Sentence ${sentenceIndex + 1}/${sentences.length}`,
-                         artist: 'Reading Text',
-                         album: 'TTS Active'
-                     });
-                 }
-                 
-                 utterance.onstart = () => { boundarySupported = false; scheduleWordHighlights(sentence, utterance.rate); }; 
-                 utterance.onboundary = (event) => { if (event.name === 'word') { if (!boundarySupported) { boundarySupported = true; clearWordTimers(); } requestAnimationFrame(() => highlightWordAt(event.charIndex)); } }; 
-                 utterance.onend = handleSentenceEnd;
-                 
-                 // PREVENT ANDROID SYNTH BUG
-                 utterance.onerror = (e) => { 
-                     if (isJumping) return;
-                     if (e.error !== 'canceled') { console.error("Synthesis error", e); isPlaying = false; updateFloatingBtn(); } 
-                 }; 
-                 
-                 synth.speak(utterance); 
+                synth.cancel(); // Force reset Android Speech Engine before speaking
+                const utterance = new SpeechSynthesisUtterance(sentence); 
+                const selectedVoice = availableVoices.find(v => v.name === voiceSelect.value); 
+                if (selectedVoice) { utterance.voice = selectedVoice; utterance.lang = selectedVoice.lang; } else utterance.lang = 'en-US'; 
+                utterance.rate = parseFloat(speedInput.value) || 1.0; 
+                
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: `Sentence ${sentenceIndex + 1}/${sentences.length}`,
+                        artist: 'Reading Text',
+                        album: 'TTS Active'
+                    });
+                }
+                
+                // Safety timer for Android devices where utterance.onend fails to fire
+                let speechSafetyTimeout = setTimeout(() => {
+                    if (isPlaying && !isVideoMode) {
+                        handleSentenceEnd();
+                    }
+                }, Math.max(3000, (sentence.length * 150) / (parseFloat(speedInput.value) || 1.0)));
+
+                utterance.onstart = () => { boundarySupported = false; scheduleWordHighlights(sentence, utterance.rate); }; 
+                utterance.onboundary = (event) => { if (event.name === 'word') { if (!boundarySupported) { boundarySupported = true; clearWordTimers(); } requestAnimationFrame(() => highlightWordAt(event.charIndex)); } }; 
+                
+                utterance.onend = () => {
+                    clearTimeout(speechSafetyTimeout);
+                    handleSentenceEnd();
+                };
+                
+                utterance.onerror = (e) => { 
+                    clearTimeout(speechSafetyTimeout);
+                    if (isJumping) return;
+                    handleSentenceEnd();
+                }; 
+                
+                synth.speak(utterance); 
              }
          }
          
