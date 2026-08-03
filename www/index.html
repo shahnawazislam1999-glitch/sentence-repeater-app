@@ -1260,7 +1260,7 @@
              }
              voicePollCount++;
              if (voicePollCount > 10) clearInterval(voiceInterval); // Give up after 5 seconds
-         }, 500); voiceSelect.addEventListener('change', () => { localStorage.setItem('app_voice', voiceSelect.value); if (isPlaying) { if (synth) synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
+         }, 500); voiceSelect.addEventListener('change', () => { localStorage.setItem('app_voice', voiceSelect.value); if (isPlaying) { if (window.Capacitor && window.Capacitor.Plugins.TextToSpeech) { window.Capacitor.Plugins.TextToSpeech.stop(); } if (synth) synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
          
          function isPlayable(index) { 
              if (index < startSentenceIndex || index > endSentenceIndex) return false; 
@@ -1434,7 +1434,7 @@
 }); delayInput.addEventListener('input', () => localStorage.setItem('app_delay', delayInput.value)); sentenceRepeatInput.addEventListener('input', () => { localStorage.setItem('app_sentence_repeats', sentenceRepeatInput.value); if(!isPlaying) updateScreenOnly(); }); passageRepeatInput.addEventListener('input', () => localStorage.setItem('app_passage_repeats', passageRepeatInput.value)); skipIntervalInput.addEventListener('input', () => localStorage.setItem('app_skip_interval', skipIntervalInput.value)); shuffleInput.addEventListener('change', () => { localStorage.setItem('app_shuffle', shuffleInput.checked); if(!isPlaying) { playedInCurrentLoop = 0; updateScreenOnly(); } }); 
          rangeInput.addEventListener('input', () => { localStorage.setItem('app_range', rangeInput.value); updateVisibilityStates(); if(!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) sentenceIndex = nextIdx; saveProgress(); if(!isPlaying) updateScreenOnly(); } }); 
          minWordsInput.addEventListener('input', () => { localStorage.setItem('app_min_words', minWordsInput.value); updateVisibilityStates(); if (sentences.length > 0 && sentenceIndex >= 0 && !isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if (!isPlaying) updateScreenOnly(); } else { if (isPlaying) togglePlayPause(); currentSentenceDiv.innerText = "No playable sentences found matching your filters."; } } });
-         playStarredOnlyInput.addEventListener('change', () => { localStorage.setItem('app_play_starred_only', playStarredOnlyInput.checked); updateVisibilityStates(); if (!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if (!isPlaying) updateScreenOnly(); } else { if (isPlaying) togglePlayPause(); currentSentenceDiv.innerText = "No playable sentences found."; } } }); speedInput.addEventListener('input', () => { speedValueDisplay.innerText = `${speedInput.value}x`; localStorage.setItem('app_speed', speedInput.value); if(isVideoMode && videoPlayer) { videoPlayer.playbackRate = parseFloat(speedInput.value) || 1.0; } if (isPlaying && !isVideoMode) { if (synth) synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
+         playStarredOnlyInput.addEventListener('change', () => { localStorage.setItem('app_play_starred_only', playStarredOnlyInput.checked); updateVisibilityStates(); if (!isPlayable(sentenceIndex)) { let nextIdx = getFirstPlayableIndex(); if (nextIdx !== -1) { sentenceIndex = nextIdx; saveProgress(); if (!isPlaying) updateScreenOnly(); } else { if (isPlaying) togglePlayPause(); currentSentenceDiv.innerText = "No playable sentences found."; } } }); speedInput.addEventListener('input', () => { speedValueDisplay.innerText = `${speedInput.value}x`; localStorage.setItem('app_speed', speedInput.value); if(isVideoMode && videoPlayer) { videoPlayer.playbackRate = parseFloat(speedInput.value) || 1.0; } if (isPlaying && !isVideoMode) { if (window.Capacitor && window.Capacitor.Plugins.TextToSpeech) { window.Capacitor.Plugins.TextToSpeech.stop(); } if (synth) synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
          
          function saveProgress() { localStorage.setItem('app_sentence_index', sentenceIndex); } function getMaxSentenceRepeats(sentenceStr) { if (!sentenceStr) return parseInt(sentenceRepeatInput.value) || 1; let customVal = customRepeats[sentenceStr]; return (customVal !== undefined && customVal !== null) ? customVal : (parseInt(sentenceRepeatInput.value) || 1); }
          function updateScreenOnly() { if (!sentences || sentences.length === 0 || sentenceIndex === -1) return; const sentenceStr = sentences[sentenceIndex]; const maxRepeats = getMaxSentenceRepeats(sentenceStr); progressText.innerText = `Sentence: ${sentenceIndex + 1}/${sentences.length} (Repeat: ${sentenceRepeatCount + 1}/${maxRepeats})`; currentSentenceDiv.innerHTML = `${renderSentenceWithWords(sentenceStr)}<br><span class="pause-text">(Paused. Press Play to start.)</span>`; highlightActivePlaylistSentence(); }
@@ -1451,7 +1451,7 @@
              isPlaying = false; // Temporarily block old callbacks from ruining state
              
              // --- BACKGROUND PLAYBACK: Clean intervals when jumping ---
-             if (synth) synth.cancel(); 
+             if (window.Capacitor && window.Capacitor.Plugins.TextToSpeech) { window.Capacitor.Plugins.TextToSpeech.stop(); } if (synth) synth.cancel(); 
              if (videoPollingFrame) cancelAnimationFrame(videoPollingFrame); 
              if (window.bgVideoInterval) clearInterval(window.bgVideoInterval);
              
@@ -1482,7 +1482,7 @@
          function resetProgress() { 
              isPlaying = false; 
              boxTextarea.readOnly = false;
-             if (synth) synth.cancel(); 
+             if (window.Capacitor && window.Capacitor.Plugins.TextToSpeech) { window.Capacitor.Plugins.TextToSpeech.stop(); } if (synth) synth.cancel(); 
              videoPlayer.pause(); 
              
              // --- BACKGROUND PLAYBACK: Clear intervals ---
@@ -1615,7 +1615,7 @@
                  };
              } else {
                  // TTS Playback Logic
-                if (synth) synth.cancel(); // Force reset Android Speech Engine before speaking
+                if (window.Capacitor && window.Capacitor.Plugins.TextToSpeech) { window.Capacitor.Plugins.TextToSpeech.stop(); } if (synth) synth.cancel(); // Force reset Android Speech Engine before speaking
                 const utterance = new SpeechSynthesisUtterance(sentence); 
                 window.currentUtterance = utterance; // Prevent Android from aggressively deleting TTS from memory
                 const selectedVoice = availableVoices.find(v => v.name === voiceSelect.value); 
@@ -1651,7 +1651,24 @@
                     handleSentenceEnd();
                 }; 
                 
-               if (synth) synth.speak(utterance); 
+                // ---- NATIVE CAPACITOR TTS FIX ----
+                if (window.Capacitor && window.Capacitor.Plugins.TextToSpeech) {
+                    scheduleWordHighlights(sentence, utterance.rate); // Fallback to manual word timing
+                    window.Capacitor.Plugins.TextToSpeech.speak({
+                        text: sentence,
+                        lang: utterance.lang,
+                        rate: utterance.rate
+                    }).then(() => {
+                        clearTimeout(speechSafetyTimeout);
+                        handleSentenceEnd();
+                    }).catch((e) => {
+                        console.error("TTS Error:", e);
+                        clearTimeout(speechSafetyTimeout);
+                        if (!isJumping) handleSentenceEnd();
+                    });
+                } else {
+                    if (synth) synth.speak(utterance); 
+                }
              }
          }
          
@@ -1669,7 +1686,7 @@
                      if (videoPollingFrame) cancelAnimationFrame(videoPollingFrame);
                      if (window.bgVideoInterval) clearInterval(window.bgVideoInterval);
                  } else {
-                     if (synth) synth.cancel();
+                     if (window.Capacitor && window.Capacitor.Plugins.TextToSpeech) { window.Capacitor.Plugins.TextToSpeech.stop(); } if (synth) synth.cancel();
                  }
                  clearTimeout(delayTimeout); clearWordHighlight(); currentSentenceDiv.innerHTML += `<br><span class="pause-text">(Paused. Press Play to restart this repetition.)</span>`; 
              } else { 
@@ -1682,7 +1699,7 @@
          } 
          
          floatingTtsBtn.addEventListener('click', togglePlayPause); setInterval(updateFloatingBtn, 500); 
-         window.addEventListener('beforeunload', () => { if (synth) synth.cancel(); videoPlayer.pause(); });
+         window.addEventListener('beforeunload', () => { if (window.Capacitor && window.Capacitor.Plugins.TextToSpeech) { window.Capacitor.Plugins.TextToSpeech.stop(); } if (synth) synth.cancel(); videoPlayer.pause(); });
          
          /* --- Interactive Dictionary Engine --- */
          const dictPopup = document.getElementById('dictPopup');
