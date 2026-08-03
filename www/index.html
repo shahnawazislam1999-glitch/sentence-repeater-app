@@ -1222,22 +1222,45 @@
          
          function highlightActivePlaylistSentence() { document.querySelectorAll('.sentence-content').forEach(el => el.classList.remove('active')); if (sentences.length > 0 && sentenceIndex !== -1 && sentenceIndex < sentences.length) { const activeWrapper = document.getElementById(`playlist-item-${sentenceIndex}`); if (activeWrapper) { const activeContent = activeWrapper.querySelector('.sentence-content'); if(activeContent) activeContent.classList.add('active'); activeWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } highlightInBoxEditor(); } }
          function populateVoiceList() { 
-    if (!synth) return; 
-    try { availableVoices = synth.getVoices() || []; } catch(e) { availableVoices = []; } 
-    if (availableVoices.length === 0) return; 
-    const savedVoice = localStorage.getItem('app_voice'); 
-    voiceSelect.innerHTML = ''; 
-    availableVoices.forEach((voice) => { 
-        const option = document.createElement('option'); 
-        option.textContent = `${voice.name} (${voice.lang})`; 
-        option.value = voice.name; 
-        if (voice.name === savedVoice) option.selected = true; 
-        else if (!savedVoice && voice.default) option.selected = true; 
-        voiceSelect.appendChild(option); 
-    }); 
-} 
-populateVoiceList(); 
-if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoiceList; voiceSelect.addEventListener('change', () => { localStorage.setItem('app_voice', voiceSelect.value); if (isPlaying) { if (synth) synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
+             if (!synth) return; 
+             try { availableVoices = synth.getVoices() || []; } catch(e) { availableVoices = []; } 
+             
+             voiceSelect.innerHTML = ''; 
+             
+             // Always add a system default fallback so the dropdown is never empty
+             const defaultOption = document.createElement('option');
+             defaultOption.textContent = "System Default Voice";
+             defaultOption.value = "default";
+             voiceSelect.appendChild(defaultOption);
+
+             if (availableVoices.length > 0) {
+                 const savedVoice = localStorage.getItem('app_voice'); 
+                 availableVoices.forEach((voice) => { 
+                     const option = document.createElement('option'); 
+                     option.textContent = `${voice.name} (${voice.lang})`; 
+                     option.value = voice.name; 
+                     if (voice.name === savedVoice) option.selected = true; 
+                     else if (!savedVoice && voice.default) option.selected = true; 
+                     voiceSelect.appendChild(option); 
+                 }); 
+             }
+         } 
+         
+         populateVoiceList(); 
+         if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+             speechSynthesis.onvoiceschanged = populateVoiceList;
+         }
+         
+         // ANDROID WEBVIEW FIX: Manually poll for voices every 500ms since onvoiceschanged often fails
+         let voicePollCount = 0;
+         let voiceInterval = setInterval(() => {
+             if (synth && synth.getVoices().length > 0) {
+                 populateVoiceList();
+                 clearInterval(voiceInterval);
+             }
+             voicePollCount++;
+             if (voicePollCount > 10) clearInterval(voiceInterval); // Give up after 5 seconds
+         }, 500); voiceSelect.addEventListener('change', () => { localStorage.setItem('app_voice', voiceSelect.value); if (isPlaying) { if (synth) synth.cancel(); clearTimeout(delayTimeout); clearWordTimers(); setTimeout(() => { if(isPlaying) speakNext(); }, 150); } });
          
          function isPlayable(index) { 
              if (index < startSentenceIndex || index > endSentenceIndex) return false; 
@@ -1594,6 +1617,7 @@ if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefin
                  // TTS Playback Logic
                 if (synth) synth.cancel(); // Force reset Android Speech Engine before speaking
                 const utterance = new SpeechSynthesisUtterance(sentence); 
+                window.currentUtterance = utterance; // Prevent Android from aggressively deleting TTS from memory
                 const selectedVoice = availableVoices.find(v => v.name === voiceSelect.value); 
                 if (selectedVoice) { utterance.voice = selectedVoice; utterance.lang = selectedVoice.lang; } else utterance.lang = 'en-US'; 
                 utterance.rate = parseFloat(speedInput.value) || 1.0; 
