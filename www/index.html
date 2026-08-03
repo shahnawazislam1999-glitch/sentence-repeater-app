@@ -1650,7 +1650,7 @@ if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefin
                  clearTimeout(delayTimeout); clearWordHighlight(); currentSentenceDiv.innerHTML += `<br><span class="pause-text">(Paused. Press Play to restart this repetition.)</span>`; 
              } else { 
                  if (!parseSentencesIfNeeded()) { alert("Please select a valid Box with text first, or upload SRT for video."); return; } 
-                 if (!parseSentencesIfNeeded()) { alert("Please select a valid Box with text first, or upload SRT for video."); return; } 
+                 
         
         isPlaying = true; speakNext(); 
     }
