@@ -1,5 +1,5 @@
 {
-  "appId": "com.raj.sentencerepeater",
+  "appId": "com.raj.sentencerepeater.v2",
   "appName": "Sentence Repeater",
   "webDir": "www",
   "bundledWebRuntime": false,
