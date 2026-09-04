@@ -1,0 +1,10 @@
+Vite: 8.2.2
+Capacitor CLI: 8.5.1
+Capacitor Core: 8.5.1
+Capacitor Android: 8.5.1
+Node CI: 22.21.1
+JDK CI: 21
+Android API: 36
+Android Build Tools: 36.0.0
+
+The Android project is generated in CI with `npx cap add android`.

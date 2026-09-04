@@ -1,0 +1,24 @@
+{
+  "name": "ultimate-sentence-repeater",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ultimate Sentence Repeater packaged as a Vite + Capacitor Android app.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cap:add:android": "cap add android",
+    "cap:sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.1",
+    "@capacitor/core": "8.5.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.1",
+    "vite": "8.2.2"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
